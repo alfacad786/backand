@@ -5,7 +5,6 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-     
     "dev": "nodemon index.js"
   },
   "author": "",
@@ -16,6 +15,8 @@
     "dotenv": "^16.4.5",
     "env": "^0.0.2",
     "express": "^4.19.2",
+    "mongodb": "^6.7.0",
+    "mongoose": "^8.4.1",
     "nodemon": "^3.1.2"
   }
 }
