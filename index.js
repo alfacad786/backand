@@ -7,15 +7,14 @@ import { mongoose } from "mongoose";
 import dotenv from "dotenv";
 dotenv.config();
 const port = process.env.PORT;
-import { MongoClient } from "mongodb";
-// import Top from "../frontend/src/Top";
-
+import user from "./models/user.js";
+import { Admin, MongoClient } from "mongodb";
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // ==================================================
 const corsOptions = {
-  origin: "http://localhost:5173",
+  origin: `http://localhost:5173`,
   mathods: "GET,POST,PUT,DELETE,PATCH,HEAD",
   credentials: true,
   optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
@@ -23,7 +22,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 // ==================================================
 
-const dburl = process.env.DB_URL;
+const dburl = process.env.DB_Web1_URL;
 console.log("this is :", dburl, port, "-over url");
 
 // ==================================================
@@ -31,59 +30,18 @@ console.log("this is :", dburl, port, "-over url");
 // ==================================================
 // 1
 // ==================================================
-// async function main() {
-//   await mongoose.connect(dburl);
-// }
-// main()
-//   .then((res) => {
-//     console.log("conection sussecfull");
-//   })
-//   .catch((err) => console.log(err, "conection not sussecfull"));
+const mongodbconect = mongoose.connect(dburl);
 
-// ==================================================
-//2
-// ==================================================
-const client = new MongoClient(dburl);
-const db = client.db("test");
-async function listCollections() {
-  try {
-    console.log("conection sussecfull");
-    // MongoDB server se connect karein
-    await client.connect();
-
-    // Database select karein
-    // const db = client.db("test"); // yahan apna database name daalein
-
-    // Collections ki list lein
-    const collections = await db.listCollections().toArray();
-
-    // Collections print karein
-    console.log(
-      "collections:",
-      collections.map((col) => col.name)
-    );
-    console.log("this is collections:",collections);
-  } catch (err) {
-    console.log("conection not sussecfull");
-    console.error(err);
-  }
- 
+async function main() {
+  await mongodbconect;
 }
+main()
+  .then((res) => {
+    console.log("conection sussecfull");
+  })
+  .catch((err) => console.log(err, "conection not sussecfull"));
 
-listCollections();
-const user = db.collection("user1");
-const users1 = await user.find({}).toArray();
-
-const admins1 = db.collection("admins");
-const admins = await admins1.find({}).toArray();
-
-const userdetails1 = db.collection("userdetails");
-const userdetails = await userdetails1.find({}).toArray();
-
-users1.forEach(user => {console.log("user:",user);});
-admins.forEach(admins => {console.log("admins:",admins);});
-userdetails.forEach(userdetails => {console.log("userdetails:",userdetails);});
-
+// ==================================================
 
 // =====================================================================================
 app.listen(port || 3000, () => {
@@ -183,24 +141,93 @@ router.get("/api/jokes", (req, res) => {
   res.send(jokes);
   console.log(jokes);
 });
-
+// =====================================================================================
 app.get("/", (req, res) => {
-  res.send({users1});
+  res.send({ users1 });
   // res.render(Top);
 });
 
+// =================== new user signup ========================================
+
 app.post("/api/signup", async (req, res) => {
   const body = req.body;
-  let { userName, password, email } = body;
-  console.log("New User:", { userName, password, email });
+  console.log("body:", body);
+  // res.json({ body });
 
-  let chekuser = await user.findOne({ userName: userName });
+  let { username, password, email } = body;
+  console.log("New User:", { username, password, email });
+  let chekuser = await user.findOne({ username: username });
 
-  res.json({ body });
+  if (!chekuser) {
+    const newUser = new user({
+      username: username,
+      password: password,
+      email: email,
+    });
+
+    newUser
+      .save()
+      .then((res) => {
+        console.log(res, "save user");
+        console.log(" add data");
+      })
+      .catch((err) => {
+        console.log(err, "user not save");
+      });
+    res.send(newUser._id);
+    // res.redirect("/trust/user/logpage/");
+    // console.log(" data match");
+  } else {
+    // res.render("errer userrejistration.ejs");
+    console.log(" match the userName");
+    console.log(username, chekuser);
+    // res.render("loginerror.ejs");
+  }
+
+  // -------------------------------//
+  // try {
+  // let { username, password, email } = body;
+  // console.log("New User:", { username, password, email });
+  // let chekuser = await user.findOne({ username: username });
+
+  // if (!chekuser) {
+  //   const newUser = new user({
+  //     username: username,
+  //     password: password,
+  //     email: email,
+  //   });
+
+  //     await newUser.save();
+  //     console.log("New user save successful");
+  //     res.status(201).json({ message: "User created successfully" });
+  //   } else {
+  //     console.log("Username already exists");
+  //     res.status(400).json({ message: "Username already exists" });
+  //   }
+  // } catch (err) {
+  //   console.log(err);
+  //   res.status(500).json({ message: "Internal server error" });
+  // }
 });
 
-app.post("/api/login", (req, res) => {
-  const body = req.body;
-  console.log("username:", body.username, "||", "password:", body.password);
-  res.json({ body });
+// ===================loging========================
+
+app.post("/api/login", async (req, res) => {
+  let { username, password } = req.body;
+
+  const loguser = await user.findOne(
+    { username: username } || { password: password }
+  );
+  const id = loguser._id;
+
+  if (!loguser) {
+    res.send("please valide username or passwerd");
+  } else {
+    res.send({
+      massage: "welcom",
+      id: id,
+      redirectUrl: `/userportal/${id}`,
+    });
+    console.log("welcom",loguser.username);
+  }
 });
