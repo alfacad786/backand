@@ -8,6 +8,7 @@ import dotenv from "dotenv";
 dotenv.config();
 const port = process.env.PORT;
 import user from "./models/user.js";
+import product from "./models/Product.js";
 import { Admin, MongoClient } from "mongodb";
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -230,4 +231,102 @@ app.post("/api/login", async (req, res) => {
     });
     console.log("welcom",loguser.username);
   }
+});
+
+// ===================product save========================
+
+app.post("/api/product", async (req, res) => {
+  const body = req.body;
+  console.log("body:", body);
+  // res.json({ body });
+
+  let { projectName, discription, image } = body;
+  console.log("New product:", { projectName, discription, image });
+  let chekproduct = await product.findOne({ projectName: projectName });
+
+  if (!chekproduct) {
+    const newproduct = new product({
+      projectName: projectName,
+      discription: discription,
+      image: image,
+    });
+
+    newproduct
+      .save()
+      .then((res) => {
+        console.log(res, "save newproduct");
+        console.log(" add data");
+      })
+      .catch((err) => {
+        console.log(err, "user not save");
+      });
+    res.send(newproduct._id);
+    // res.redirect("/trust/user/logpage/");
+    // console.log(" data match");
+  } else {
+    // res.render("errer userrejistration.ejs");
+    console.log(" match the projectName");
+    console.log(projectName, chekproduct);
+    // res.render("loginerror.ejs");
+  }
+
+  // -------------------------------//
+  // try {
+  // let { username, password, email } = body;
+  // console.log("New User:", { username, password, email });
+  // let chekuser = await user.findOne({ username: username });
+
+  // if (!chekuser) {
+  //   const newUser = new user({
+  //     username: username,
+  //     password: password,
+  //     email: email,
+  //   });
+
+  //     await newUser.save();
+  //     console.log("New user save successful");
+  //     res.status(201).json({ message: "User created successfully" });
+  //   } else {
+  //     console.log("Username already exists");
+  //     res.status(400).json({ message: "Username already exists" });
+  //   }
+  // } catch (err) {
+  //   console.log(err);
+  //   res.status(500).json({ message: "Internal server error" });
+  // }
+});
+
+// router.post("/:userName/search/", async (req, res) => {
+//   let search = req.body.search;
+//   let Adminlist = { search: "Adminlist" };
+//   let userlist = { search: "userlist" };
+//   let { value } = req.params;
+//   // let { id } = req.params;
+//   // let don = await admindetail.findById(id);
+//   let { userName } = req.params;
+//   let don = await product.findOne({ userName: userName });
+//   const data = [don];
+ 
+//   let alluser = await userdetail.find();
+//   let fund = await user1.find();
+
+//   if (search === "Adminlist") {
+//     console.log("adminlist");
+//     res.render("adminlist.ejs", {don,data, admin });
+//   } else if (search === "userlist") {
+//     res.render("admin-userlist copy.ejs", {fund, alluser, don });
+//   } else if (search === "totalpayment") {
+//     res.render("adminfund copy.ejs", { fund, don });
+//     console.log("totalpayment", fund, don);
+//     // res.render("searchformalert.ejs", { don });
+//   }
+
+//   console.log("admin :",don,admin);
+// });
+
+app.post("/api/product/data", async (req, res) => {
+let product = await product.find();
+
+console.log("adminlist");
+  res.json(product);
 });
