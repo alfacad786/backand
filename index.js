@@ -260,7 +260,8 @@ app.post("/api/product", async (req, res) => {
       .catch((err) => {
         console.log(err, "user not save");
       });
-    res.send(newproduct._id);
+      console.log("ok",newproduct,"good");
+    res.json(newproduct);
     // res.redirect("/trust/user/logpage/");
     // console.log(" data match");
   } else {
@@ -324,9 +325,9 @@ app.post("/api/product", async (req, res) => {
 //   console.log("admin :",don,admin);
 // });
 
-app.post("/api/product/data", async (req, res) => {
+app.get("/api/product/data", async (req, res) => {
 let product = await product.find();
 
-console.log("adminlist");
+console.log("product is", product,"then");
   res.json(product);
 });
