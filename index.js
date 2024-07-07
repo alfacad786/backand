@@ -325,9 +325,15 @@ app.post("/api/product", async (req, res) => {
 //   console.log("admin :",don,admin);
 // });
 
-app.get("/api/product/data", async (req, res) => {
-let product = await product.find();
+app.get("/api/product/data/", async (req, res) => {
+  try{
+let products = await product.find();
 
-console.log("product is", product,"then");
-  res.json(product);
+
+console.log("product is", {products},"then");
+  res.json(products);
+}
+  catch(err){
+     console.log ("err", {product},"err");
+  }
 });
