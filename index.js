@@ -2,6 +2,12 @@ import express from "express";
 const app = express();
 const router = express.Router();
 import cors from "cors";
+
+// import AWS from 'aws-sdk';
+// import multer from 'multer';
+// import multerS3 from 'multer-s3';
+
+
 // import { configDotenv } from "dotenv";
 import { mongoose } from "mongoose";
 import dotenv from "dotenv";
@@ -296,6 +302,42 @@ app.post("/api/product", async (req, res) => {
   //   res.status(500).json({ message: "Internal server error" });
   // }
 });
+
+// =====================image save========================
+
+// AWS S3 Configuration======================
+// const s3 = new AWS.S3({
+//   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+//   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+//   region: process.env.AWS_REGION
+// });
+
+// Multer-S3 Configuration===============================
+// const upload = multer({
+//   storage: multerS3({
+//       s3: s3,
+//       bucket: process.env.AWS_BUCKET_NAME,
+//       acl: 'public-read',
+//       metadata: function (req, file, cb) {
+//           cb(null, { fieldName: file.fieldname });
+//       },
+//       key: function (req, file, cb) {
+//           cb(null, Date.now().toString() + '-' + file.originalname)
+//       }
+//   })
+// });
+
+// Upload Route===========================
+
+// app.post('/upload', upload.single('image'), (req, res) => {
+//   res.send({
+//       imageUrl: req.file.location
+//   });
+// });
+// ===========================================================
+
+
+
 
 // router.post("/:userName/search/", async (req, res) => {
 //   let search = req.body.search;
