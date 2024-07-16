@@ -3,16 +3,28 @@ const app = express();
 const router = express.Router();
 import cors from "cors";
 
+// Upload instead from @aws-sdk/lib-storage
+
+
 // import AWS from "aws-sdk";
 // import multer from "multer";
 // import multerS3 from "multer-s3";
 import {
   aws_Create_backet,
   aws_Delete_bucket,
-  aws_Delete_object,
+  aws_Uplode_object,
   aws_Read_object,
+  aws_Delete_object,
+
   
 } from "./aws/command.js";
+
+
+
+
+
+
+
 
 // import { configDotenv } from "dotenv";
 import { mongoose } from "mongoose";
@@ -309,66 +321,11 @@ app.post("/api/product", async (req, res) => {
   // }
 });
 
-// router.post("/:userName/search/", async (req, res) => {
-//   let search = req.body.search;
-//   let Adminlist = { search: "Adminlist" };
-//   let userlist = { search: "userlist" };
-//   let { value } = req.params;
-//   // let { id } = req.params;
-//   // let don = await admindetail.findById(id);
-//   let { userName } = req.params;
-//   let don = await product.findOne({ userName: userName });
-//   const data = [don];
 
-//   let alluser = await userdetail.find();
-//   let fund = await user1.find();
 
-//   if (search === "Adminlist") {
-//     console.log("adminlist");
-//     res.render("adminlist.ejs", {don,data, admin });
-//   } else if (search === "userlist") {
-//     res.render("admin-userlist copy.ejs", {fund, alluser, don });
-//   } else if (search === "totalpayment") {
-//     res.render("adminfund copy.ejs", { fund, don });
-//     console.log("totalpayment", fund, don);
-//     // res.render("searchformalert.ejs", { don });
-//   }
 
-//   console.log("admin :",don,admin);
-// });
 
-// =====================image save========================
 
-// AWS S3 Configuration======================
-//  const s3_credential= {
-//   region: process.env.AWS_REGION,
-//   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-//   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-//   };
-
-// // Multer-S3 Configuration===============================
-// const upload = multer({
-//   storage: multerS3({
-//       s3: s3_credential,
-//       bucket: process.env.AWS_BUCKET_NAME,
-//       acl: 'public-read',
-//       metadata: function (req, file, cb) {
-//           cb(null, { fieldName: file.fieldname });
-//       },
-//       key: function (req, file, cb) {
-//           cb(null, Date.now().toString() + '-' + file.originalname)
-//       }
-//   })
-// });
-
-// Upload Route===========================
-
-// app.post('/upload', upload.single('image'), (req, res) => {
-//   res.send({
-//       imageUrl: req.file.location
-//   });
-// });
-// ===========================image save finish================================
 
 // ===========card me data accses kerne ke liya useEfect me call===============
 app.get("/api/product/data/", async (req, res) => {
@@ -381,11 +338,65 @@ app.get("/api/product/data/", async (req, res) => {
     console.log("err", { product }, "err");
   }
 });
-// ===========card me data accses kerneke liya useEfect me call===============
 
 
+// ===========CREATE BUCKET IN AWS S3===============
 app.post("/api/creatBacket/",(req,res)=>{
   const body = req.body;
-  // console.log("body:", body);
-  aws_Create_backet(body)
+  const name=body.bucketName
+  console.log("body:", name);
+
+aws_Create_backet(name)
+
 });
+
+
+
+// ===========DELETE BUCKET FOR  AWS S3 ===============
+app.post("/api/delateBucket/",(req,res)=>{
+  const body = req.body;
+  const name=body.bucketName
+  console.log("body:", name);
+
+aws_Create_backet(name)
+
+  
+});
+
+
+
+
+// ===========UPDATE OBJECT IN AWS S3 BUCKETS===============
+app.post("/api/UPDATE/",(req,res)=>{
+  const {projectName,discription,image} = req.body;
+  const body={projectName,discription,image}
+  console.log(body);
+
+  aws_Uplode_object(body)
+  
+});
+
+
+
+// ===========READ OBJECT IN AWS S3 BUCKETS===============
+app.post("/api/READ/",(req,res)=>{
+  const body = req.body;
+  const name=body.bucketName
+  console.log("body:", name);
+
+aws_Create_backet(name)
+  
+});
+
+
+
+// ===========DELETE OBJECT IN AWS S3 BUCKETS===============
+app.post("/api/DELETE/",(req,res)=>{
+  const body = req.body;
+  const name=body.bucketName
+  console.log("body:", name);
+
+aws_Create_backet(name)
+  
+});
+

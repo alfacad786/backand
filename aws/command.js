@@ -28,9 +28,9 @@ import {
 
 
 const credential= {
-    region: process.env.AWS_REGION,
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+    region:process.env.AWS_REGION,
+    accessKeyId:process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey:process.env.AWS_SECRET_ACCESS_KEY
     
     };
     const s3Client = new S3Client(credential);
@@ -39,25 +39,28 @@ const credential= {
     
     
     // =============aws_Create_backet====================
-    export async function aws_Create_backet(body) {  
-        const bucket_Name = `${body}-${Date.now()}`;
+    export async function aws_Create_backet(name) {  
+      
+      const bucket_Name = `${name}-${Date.now()}`;
       // Create an Amazon S3 bucket. 
-      console.log(bucket_Name);
+      console.log("bucket_Name:",bucket_Name,"is done");
       await s3Client.send(
         new CreateBucketCommand({
-          Bucket: bucket_Name,
-        })
+          Bucket: bucket_Name,})
       );
-    }
+      console.log("is done");
+    };   
+
     // =============aws_Uplode_object====================
-    export async function aws_Uplode_object() {  
+    export async function aws_Uplode_object(projectName,discription,image) {  
+      
       // Put an object into an Amazon S3 bucket.
       await s3Client.send(
         new PutObjectCommand({
-          Bucket: bucketName,
-          Key: "my-first-object.txt",
-          Body: "Hello JavaScript SDK!",
-        })
+          Bucket: "aaliya-1721126150278",
+          Key: "my-first-object1.txt",
+          Body:projectName
+         })
       );
     }
     // =============aws_Read_object====================
