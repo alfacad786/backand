@@ -3,10 +3,16 @@ const app = express();
 const router = express.Router();
 import cors from "cors";
 
-// import AWS from 'aws-sdk';
-// import multer from 'multer';
-// import multerS3 from 'multer-s3';
-
+// import AWS from "aws-sdk";
+// import multer from "multer";
+// import multerS3 from "multer-s3";
+import {
+  aws_Create_backet,
+  aws_Delete_bucket,
+  aws_Delete_object,
+  aws_Read_object,
+  
+} from "./aws/command.js";
 
 // import { configDotenv } from "dotenv";
 import { mongoose } from "mongoose";
@@ -235,7 +241,7 @@ app.post("/api/login", async (req, res) => {
       id: id,
       redirectUrl: `/userportal/${id}`,
     });
-    console.log("welcom",loguser.username);
+    console.log("welcom", loguser.username);
   }
 });
 
@@ -266,7 +272,7 @@ app.post("/api/product", async (req, res) => {
       .catch((err) => {
         console.log(err, "user not save");
       });
-      console.log("ok",newproduct,"good");
+    console.log("ok", newproduct, "good");
     res.json(newproduct);
     // res.redirect("/trust/user/logpage/");
     // console.log(" data match");
@@ -303,19 +309,47 @@ app.post("/api/product", async (req, res) => {
   // }
 });
 
+// router.post("/:userName/search/", async (req, res) => {
+//   let search = req.body.search;
+//   let Adminlist = { search: "Adminlist" };
+//   let userlist = { search: "userlist" };
+//   let { value } = req.params;
+//   // let { id } = req.params;
+//   // let don = await admindetail.findById(id);
+//   let { userName } = req.params;
+//   let don = await product.findOne({ userName: userName });
+//   const data = [don];
+
+//   let alluser = await userdetail.find();
+//   let fund = await user1.find();
+
+//   if (search === "Adminlist") {
+//     console.log("adminlist");
+//     res.render("adminlist.ejs", {don,data, admin });
+//   } else if (search === "userlist") {
+//     res.render("admin-userlist copy.ejs", {fund, alluser, don });
+//   } else if (search === "totalpayment") {
+//     res.render("adminfund copy.ejs", { fund, don });
+//     console.log("totalpayment", fund, don);
+//     // res.render("searchformalert.ejs", { don });
+//   }
+
+//   console.log("admin :",don,admin);
+// });
+
 // =====================image save========================
 
 // AWS S3 Configuration======================
-// const s3 = new AWS.S3({
+//  const s3_credential= {
+//   region: process.env.AWS_REGION,
 //   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-//   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-//   region: process.env.AWS_REGION
-// });
+//   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+//   };
 
-// Multer-S3 Configuration===============================
+// // Multer-S3 Configuration===============================
 // const upload = multer({
 //   storage: multerS3({
-//       s3: s3,
+//       s3: s3_credential,
 //       bucket: process.env.AWS_BUCKET_NAME,
 //       acl: 'public-read',
 //       metadata: function (req, file, cb) {
@@ -334,48 +368,24 @@ app.post("/api/product", async (req, res) => {
 //       imageUrl: req.file.location
 //   });
 // });
-// ===========================================================
+// ===========================image save finish================================
 
-
-
-
-// router.post("/:userName/search/", async (req, res) => {
-//   let search = req.body.search;
-//   let Adminlist = { search: "Adminlist" };
-//   let userlist = { search: "userlist" };
-//   let { value } = req.params;
-//   // let { id } = req.params;
-//   // let don = await admindetail.findById(id);
-//   let { userName } = req.params;
-//   let don = await product.findOne({ userName: userName });
-//   const data = [don];
- 
-//   let alluser = await userdetail.find();
-//   let fund = await user1.find();
-
-//   if (search === "Adminlist") {
-//     console.log("adminlist");
-//     res.render("adminlist.ejs", {don,data, admin });
-//   } else if (search === "userlist") {
-//     res.render("admin-userlist copy.ejs", {fund, alluser, don });
-//   } else if (search === "totalpayment") {
-//     res.render("adminfund copy.ejs", { fund, don });
-//     console.log("totalpayment", fund, don);
-//     // res.render("searchformalert.ejs", { don });
-//   }
-
-//   console.log("admin :",don,admin);
-// });
-
+// ===========card me data accses kerne ke liya useEfect me call===============
 app.get("/api/product/data/", async (req, res) => {
-  try{
-let products = await product.find();
+  try {
+    let products = await product.find();
 
-
-console.log("product is", {products},"then");
-  res.json(products);
-}
-  catch(err){
-     console.log ("err", {product},"err");
+    // console.log("product is", {products},"then");
+    res.json(products);
+  } catch (err) {
+    console.log("err", { product }, "err");
   }
+});
+// ===========card me data accses kerneke liya useEfect me call===============
+
+
+app.post("/api/creatBacket/",(req,res)=>{
+  const body = req.body;
+  // console.log("body:", body);
+  aws_Create_backet(body)
 });
