@@ -5,26 +5,40 @@ import cors from "cors";
 
 // Upload instead from @aws-sdk/lib-storage
 
-
 // import AWS from "aws-sdk";
 // import multer from "multer";
 // import multerS3 from "multer-s3";
+
+
+import { createInterface } from "readline/promises";
+
+import {
+  S3Client,
+  PutObjectCommand,
+  CreateBucketCommand,
+  DeleteObjectCommand,
+  DeleteBucketCommand,
+  paginateListObjectsV2,
+  GetObjectCommand,
+  ListBucketsCommand,
+} from "@aws-sdk/client-s3";
+
+const credential = {
+  region: process.env.AWS_REGION,
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+};
+const s3Client = new S3Client(credential);
+
+
 import {
   aws_Create_backet,
   aws_Delete_bucket,
   aws_Uplode_object,
   aws_Read_object,
   aws_Delete_object,
-
-  
+  aws_List_backet,
 } from "./aws/command.js";
-
-
-
-
-
-
-
 
 // import { configDotenv } from "dotenv";
 import { mongoose } from "mongoose";
@@ -321,12 +335,6 @@ app.post("/api/product", async (req, res) => {
   // }
 });
 
-
-
-
-
-
-
 // ===========card me data accses kerne ke liya useEfect me call===============
 app.get("/api/product/data/", async (req, res) => {
   try {
@@ -339,64 +347,70 @@ app.get("/api/product/data/", async (req, res) => {
   }
 });
 
-
 // ===========CREATE BUCKET IN AWS S3===============
-app.post("/api/creatBacket/",(req,res)=>{
+app.post("/api/creatBacket/", (req, res) => {
   const body = req.body;
-  const name=body.bucketName
+  const name = body.bucketName;
   console.log("body:", name);
 
-aws_Create_backet(name)
+  aws_Create_backet(name);
+});
+// ===========List BUCKET IN AWS S3===============
+app.get("/api/ListObject/", async (req, res) => {
+  // const body = req.body;
+  // const name = body.bucketName;
+  // console.log("body:", name);
+  const command = new ListBucketsCommand({});
+
+  try {
+    const { Owner, Buckets } = await s3Client.send(command);
+    // console.log(
+    //   `${Owner.DisplayName} owns ${Buckets.length} bucket${
+    //     Buckets.length === 1 ? "" : "s"
+    //   }:`
+    // );
+    console.log(Buckets);
+    res.json(Buckets);
+    // console.log(`${Buckets.map((b) => ` • ${b.Name}`).join("\n")}`);
+  } catch (err) {
+    console.error(err);
+  }
+
 
 });
-
-
 
 // ===========DELETE BUCKET FOR  AWS S3 ===============
-app.post("/api/delateBucket/",(req,res)=>{
+app.post("/api/delateBucket/", (req, res) => {
   const body = req.body;
-  const name=body.bucketName
+  const name = body.bucketName;
   console.log("body:", name);
 
-aws_Create_backet(name)
-
-  
+  aws_Delete_bucket(name);
 });
-
-
-
 
 // ===========UPDATE OBJECT IN AWS S3 BUCKETS===============
-app.post("/api/UPDATE/",(req,res)=>{
-  const {projectName,discription,image} = req.body;
-  const body={projectName,discription,image}
+app.post("/api/UPDATE/", (req, res) => {
+  const { projectName, discription, image } = req.body;
+  const body = { projectName, discription, image };
   console.log(body);
 
-  aws_Uplode_object(body)
-  
+  aws_Uplode_object(body);
 });
-
-
 
 // ===========READ OBJECT IN AWS S3 BUCKETS===============
-app.post("/api/READ/",(req,res)=>{
+app.post("/api/READ/", (req, res) => {
   const body = req.body;
-  const name=body.bucketName
+  const name = body.bucketName;
   console.log("body:", name);
 
-aws_Create_backet(name)
-  
+  aws_Read_object(name);
 });
-
-
 
 // ===========DELETE OBJECT IN AWS S3 BUCKETS===============
-app.post("/api/DELETE/",(req,res)=>{
+app.post("/api/DELETE/", (req, res) => {
   const body = req.body;
-  const name=body.bucketName
+  const name = body.bucketName;
   console.log("body:", name);
 
-aws_Create_backet(name)
-  
+  aws_Delete_object(name);
 });
-
