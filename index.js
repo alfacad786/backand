@@ -3,6 +3,7 @@ const app = express();
 const router = express.Router();
 import cors from "cors";
 
+
 // Upload instead from @aws-sdk/lib-storage
 
 // import AWS from "aws-sdk";
@@ -369,7 +370,7 @@ app.get("/api/ListObject/", async (req, res) => {
     //     Buckets.length === 1 ? "" : "s"
     //   }:`
     // );
-    console.log(Buckets);
+    // console.log(Buckets);
     res.json(Buckets);
     // console.log(`${Buckets.map((b) => ` • ${b.Name}`).join("\n")}`);
   } catch (err) {
@@ -392,18 +393,19 @@ app.post("/api/delateBucket/", (req, res) => {
 app.post("/api/UPDATE/", (req, res) => {
   const { projectName, discription, image } = req.body;
   const body = { projectName, discription, image };
-  console.log(body);
+  console.log(body.projectName);
 
   aws_Uplode_object(body);
+  
 });
 
 // ===========READ OBJECT IN AWS S3 BUCKETS===============
-app.post("/api/READ/", (req, res) => {
+app.get("/api/READ/", (req, res) => {
   const body = req.body;
-  const name = body.bucketName;
-  console.log("body:", name);
+  // const name = body.bucketName;
+  console.log("body:", body,"yebaket name hai" );
 
-  aws_Read_object(name);
+  // aws_Read_object(bucketName);
 });
 
 // ===========DELETE OBJECT IN AWS S3 BUCKETS===============

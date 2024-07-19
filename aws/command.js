@@ -1,6 +1,8 @@
 import dotenv from "dotenv";
 dotenv.config();
-
+// import { uuid } from "v4: uuidv4 ";
+import { v4 as uuidv4 } from 'uuid';
+let uuid = uuidv4();
 import { createInterface } from "readline/promises";
 
 import {
@@ -12,7 +14,9 @@ import {
   paginateListObjectsV2,
   GetObjectCommand,
   ListBucketsCommand,
+  
 } from "@aws-sdk/client-s3";
+
 
 ////////////////////////////////////////////////////////////////////////////
 // *************===========AWS S3Client,===============****************//
@@ -59,23 +63,25 @@ export const aws_List_backet = async (req,res) => {
 };
 
 // =============aws_Uplode_object====================
-export async function aws_Uplode_object(projectName, discription, image) {
+export async function aws_Uplode_object(body) {
+  const { projectName }=body 
+  const id =(`${projectName}_${uuid}`)
+  const bodyContent = JSON.stringify(body);
+  // const body = req.Body
   // Put an object into an Amazon S3 bucket.
+  console.log ("body is:",projectName,"good")
+  // console.log (`thisis",${projectName}_${uuid},"and uuid`)
   await s3Client.send(
     new PutObjectCommand({
       Bucket: "aaliya-1721126150278",
-      Key: "my-first-object1.txt",
-      Body: projectName,
-      Metadata: {
-        projectName: projectName,
-        discription: discription,
-        image: image,
-      },
+      Key: id,
+      Body: bodyContent,     
     })
   );
+  
 }
 // =============aws_Read_object====================
-export async function aws_Read_object() {
+export async function aws_Read_object(bucketName) {
   // Read the object.
   const { Body } = await s3Client.send(
     new GetObjectCommand({
