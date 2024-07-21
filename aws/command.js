@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 // import { uuid } from "v4: uuidv4 ";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 let uuid = uuidv4();
 import { createInterface } from "readline/promises";
 
@@ -14,15 +14,16 @@ import {
   paginateListObjectsV2,
   GetObjectCommand,
   ListBucketsCommand,
-  
+  ListObjectsV2Command,
 } from "@aws-sdk/client-s3";
-
 
 ////////////////////////////////////////////////////////////////////////////
 // *************===========AWS S3Client,===============****************//
 ////////////////////////////////////////////////////////////////////////////
 
 // This is used for getting user input.
+
+
 
 const credential = {
   region: process.env.AWS_REGION,
@@ -31,7 +32,12 @@ const credential = {
 };
 const s3Client = new S3Client(credential);
 
-// =============aws_Create_backet====================
+
+////////////////////////////////////////////////////////////////////////////
+// *************===========AWS buckate,===============****************//
+////////////////////////////////////////////////////////////////////////////
+
+// =============  aws_Create_backet====================
 export async function aws_Create_backet(name) {
   const bucket_Name = `${name}-${Date.now()}`;
   // Create an Amazon S3 bucket.
@@ -44,54 +50,115 @@ export async function aws_Create_backet(name) {
   console.log("is done");
 }
 
-// =============aws_List_backet====================
-export const aws_List_backet = async (req,res) => {
-  const command = new ListBucketsCommand({});
+
+
+// =============aws_Delete_bucket====================
+export async function aws_Delete_bucket() {
+  const paginator = paginateListObjectsV2(
+    { client: s3Client },
+    { Bucket: bucketName }
+  );
+  for await (const page of paginator) {
+    const objects = page.Contents;
+    if (objects) {
+      // For every object in each page, delete it.
+      for (const object of objects) {
+        await s3Client.send(
+          new DeleteObjectCommand({ Bucket: bucketName, Key: object.Key })
+        );
+      }
+    }
+  }
+  // Once all the objects are gone, the bucket can be deleted.
+  await s3Client.send(new DeleteBucketCommand({ Bucket: bucketName }));
+}
+////////////////////////////////////////////////////////////////////////////
+// *************===========AWS buckate,===============****************//
+////////////////////////////////////////////////////////////////////////////
+
+
+
+////////////////////////////////////////////////////////////////////////////
+// *************===========AWS s3 bucket  object,===============****************//
+////////////////////////////////////////////////////////////////////////////
+
+
+
+// =============aws_List_object====================
+export async function aws_list_object(req,res,bucketName)  {
+  const command = new ListObjectsV2Command({
+    Bucket: bucketName,
+    // The default and maximum number of keys returned is 1000. This limits it to
+    // one for demonstration purposes.
+    MaxKeys: 100,
+  });
 
   try {
-    const { Owner, Buckets } = await s3Client.send(command);
-    // console.log(
-    //   `${Owner.DisplayName} owns ${Buckets.length} bucket${
-    //     Buckets.length === 1 ? "" : "s"
-    //   }:`
-    // );
-   
-    // console.log(`${Buckets.map((b) => ` • ${b.Name}`).join("\n")}`);
+    let isTruncated = true;
+    let objectKeys = [];
+
+    // console.log("Your bucket contains the following objects:\n");
+    let contents = "";
+
+    while (isTruncated) {
+      const { Contents, IsTruncated, NextContinuationToken } =
+        await s3Client.send(command);
+      const contentsList = Contents.map((c) => ` • ${c.Key}`).join("\n");
+      contents += contentsList + "\n";
+      isTruncated = IsTruncated;
+      command.input.ContinuationToken = NextContinuationToken;
+      objectKeys = objectKeys.concat(Contents.map((obj) => obj.Key));
+      // console.log("ListObjects :",contents);
+      res.send(objectKeys);
+    }
+    // console.log("ListObjects  key :",objectKeys);
   } catch (err) {
     console.error(err);
   }
 };
 
+
+// =============aws_Read_singal_object====================
+export async function aws_Read_object(req,res) {
+  let key = req.query.objectKey;
+  let bucketName = req.query.bucketName;
+  console.log("bucketName Readobject ka :", bucketName, "or",
+    "key Readobject ka :", key,
+    "hai"
+    
+  );
+  // Read the object.
+  console.log("backand bucketName :", bucketName);
+  console.log("backand key :", key);
+  const { Body } = await s3Client.send(
+    new GetObjectCommand({
+      Bucket: bucketName,
+      Key: key,
+    })
+  );
+
+  res.send(await Body.transformToString());
+}
+
+
 // =============aws_Uplode_object====================
 export async function aws_Uplode_object(body) {
-  const { projectName }=body 
-  const id =(`${projectName}_${uuid}`)
+  const { projectName } = body;
+  const id = `${projectName}_${uuid}`;
   const bodyContent = JSON.stringify(body);
   // const body = req.Body
   // Put an object into an Amazon S3 bucket.
-  console.log ("body is:",projectName,"good")
+  console.log("body is:", projectName, "good");
   // console.log (`thisis",${projectName}_${uuid},"and uuid`)
   await s3Client.send(
     new PutObjectCommand({
       Bucket: "aaliya-1721126150278",
       Key: id,
-      Body: bodyContent,     
+      Body: bodyContent,
     })
   );
-  
 }
-// =============aws_Read_object====================
-export async function aws_Read_object(bucketName) {
-  // Read the object.
-  const { Body } = await s3Client.send(
-    new GetObjectCommand({
-      Bucket: bucketName,
-      Key: "my-first-object.txt",
-    })
-  );
 
-  console.log(await Body.transformToString());
-}
 // =============aws_Delete_object====================
 
 export async function aws_Delete_object() {
@@ -123,34 +190,29 @@ export async function aws_Delete_object() {
     }
   }
 }
-// =============aws_Delete_bucket====================
-export async function aws_Delete_bucket() {
-  const paginator = paginateListObjectsV2(
-    { client: s3Client },
-    { Bucket: bucketName }
-  );
-  for await (const page of paginator) {
-    const objects = page.Contents;
-    if (objects) {
-      // For every object in each page, delete it.
-      for (const object of objects) {
-        await s3Client.send(
-          new DeleteObjectCommand({ Bucket: bucketName, Key: object.Key })
-        );
-      }
-    }
-  }
-  // Once all the objects are gone, the bucket can be deleted.
-  await s3Client.send(new DeleteBucketCommand({ Bucket: bucketName }));
-}
 
-// Call a function if this file was run directly. This allows the file
-// to be runnable without running on import.
-import { fileURLToPath } from "url";
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  main();
-}
+
+
+////////////////////////////////////////////////////////////////////////////
+// *************===========AWS s3 bucket  object,===============****************//
+////////////////////////////////////////////////////////////////////////////
+
+
+
+
 
 ////////////////////////////////////////////////////////////////////////////
 // *************===========AWS S3Client,===============****************//
 ////////////////////////////////////////////////////////////////////////////
+// Call a function if this file was run directly. This allows the file
+// to be runnable without running on import.
+// import { fileURLToPath } from "url";
+// if (process.argv[1] === fileURLToPath(import.meta.url)) {
+//   main();
+// }
+
+////////////////////////////////////////////////////////////////////////////
+// *************===========AWS S3Client,===============****************//
+////////////////////////////////////////////////////////////////////////////
+
+

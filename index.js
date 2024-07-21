@@ -3,13 +3,11 @@ const app = express();
 const router = express.Router();
 import cors from "cors";
 
-
 // Upload instead from @aws-sdk/lib-storage
 
 // import AWS from "aws-sdk";
 // import multer from "multer";
 // import multerS3 from "multer-s3";
-
 
 import { createInterface } from "readline/promises";
 
@@ -31,14 +29,13 @@ const credential = {
 };
 const s3Client = new S3Client(credential);
 
-
 import {
   aws_Create_backet,
   aws_Delete_bucket,
   aws_Uplode_object,
   aws_Read_object,
   aws_Delete_object,
-  aws_List_backet,
+  aws_list_object,
 } from "./aws/command.js";
 
 // import { configDotenv } from "dotenv";
@@ -357,7 +354,7 @@ app.post("/api/creatBacket/", (req, res) => {
   aws_Create_backet(name);
 });
 // ===========List BUCKET IN AWS S3===============
-app.get("/api/ListObject/", async (req, res) => {
+app.get("/api/ListBuckets/", async (req, res) => {
   // const body = req.body;
   // const name = body.bucketName;
   // console.log("body:", name);
@@ -376,8 +373,6 @@ app.get("/api/ListObject/", async (req, res) => {
   } catch (err) {
     console.error(err);
   }
-
-
 });
 
 // ===========DELETE BUCKET FOR  AWS S3 ===============
@@ -396,17 +391,20 @@ app.post("/api/UPDATE/", (req, res) => {
   console.log(body.projectName);
 
   aws_Uplode_object(body);
-  
 });
 
 // ===========READ OBJECT IN AWS S3 BUCKETS===============
-app.get("/api/READ/", (req, res) => {
-  const body = req.body;
-  // const name = body.bucketName;
-  console.log("body:", body,"yebaket name hai" );
 
-  // aws_Read_object(bucketName);
+app.get("/api/READ/", (req, res) => {
+  
+  // console.log("key:", key,);
+  // Process the bucketName as needed
+
+  aws_Read_object(req, res);
+  // res.send(`Bucket name received: ${bucketName}`);
 });
+
+
 
 // ===========DELETE OBJECT IN AWS S3 BUCKETS===============
 app.post("/api/DELETE/", (req, res) => {
@@ -415,4 +413,22 @@ app.post("/api/DELETE/", (req, res) => {
   console.log("body:", name);
 
   aws_Delete_object(name);
+});
+
+// ===========List OBJECT IN AWS S3 BUCKETS===============
+app.get("/api/ListObject/", (req, res) => {
+  // let key = req.query.objectKey;
+  let bucketName = req.query.bucketName;
+  console.log("ListObject ka bucketName:", bucketName);
+  // console.log("ListObject ki key:", key,);
+  // Process the bucketName as needed
+
+  aws_list_object( req, res,bucketName);
+
+
+  // const objectKeys = data.Contents.map(obj => obj.Key);
+  // res.send(objectKeys);
+
+  
+  // res.send(`Bucket name received: ${bucketName}`);
 });
