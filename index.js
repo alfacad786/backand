@@ -396,7 +396,6 @@ app.post("/api/UPDATE/", (req, res) => {
 // ===========READ OBJECT IN AWS S3 BUCKETS===============
 
 app.get("/api/READ/", (req, res) => {
-  
   // console.log("key:", key,);
   // Process the bucketName as needed
 
@@ -404,13 +403,11 @@ app.get("/api/READ/", (req, res) => {
   // res.send(`Bucket name received: ${bucketName}`);
 });
 
-
-
 // ===========DELETE OBJECT IN AWS S3 BUCKETS===============
 app.post("/api/DELETE/", (req, res) => {
   const body = req.body;
   const name = body.bucketName;
-  console.log("body:", name);
+  console.log("body:", body);
 
   aws_Delete_object(name);
 });
@@ -423,12 +420,10 @@ app.get("/api/ListObject/", (req, res) => {
   // console.log("ListObject ki key:", key,);
   // Process the bucketName as needed
 
-  aws_list_object( req, res,bucketName);
-
+  aws_list_object(req, res, bucketName);
 
   // const objectKeys = data.Contents.map(obj => obj.Key);
   // res.send(objectKeys);
 
-  
   // res.send(`Bucket name received: ${bucketName}`);
 });

@@ -92,7 +92,7 @@ export async function aws_list_object(req,res,bucketName)  {
     // one for demonstration purposes.
     MaxKeys: 100,
   });
-
+  console.log("ListObject  comand ka Bucket:", bucketName);
   try {
     let isTruncated = true;
     let objectKeys = [];
@@ -136,7 +136,7 @@ export async function aws_Read_object(req,res) {
       Key: key,
     })
   );
-
+  // console.log(await Body.transformToString());
   res.send(await Body.transformToString());
 }
 
@@ -148,7 +148,7 @@ export async function aws_Uplode_object(body) {
   const bodyContent = JSON.stringify(body);
   // const body = req.Body
   // Put an object into an Amazon S3 bucket.
-  console.log("body is:", projectName, "good");
+  console.log("body is:", body, "good");
   // console.log (`thisis",${projectName}_${uuid},"and uuid`)
   await s3Client.send(
     new PutObjectCommand({
