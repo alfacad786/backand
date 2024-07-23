@@ -36,6 +36,7 @@ import {
   aws_Read_object,
   aws_Delete_object,
   aws_list_object,
+  aws_Uplode_User
 } from "./aws/command.js";
 
 // import { configDotenv } from "dotenv";
@@ -426,4 +427,11 @@ app.get("/api/ListObject/", (req, res) => {
   // res.send(objectKeys);
 
   // res.send(`Bucket name received: ${bucketName}`);
+});
+app.post("/api/newUser/", (req, res) => {
+  const { Name, Mobile, Email,UserName,Password,Image } = req.body;
+  const body = { Name, Mobile, Email,UserName,Password,Image };
+  console.log(body.projectName);
+
+  aws_Uplode_User(body);
 });

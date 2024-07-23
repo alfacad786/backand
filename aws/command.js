@@ -191,7 +191,22 @@ export async function aws_Delete_object() {
   }
 }
 
-
+export async function aws_Uplode_User(body) {
+  const { Name, Mobile, Email,UserName,Password,Image } = body;
+  const id = `${UserName}_${uuid}`;
+  const bodyContent = JSON.stringify(body);
+  // const body = req.Body
+  // Put an object into an Amazon S3 bucket.
+  console.log("body is:", body, "good");
+  // console.log (`thisis",${projectName}_${uuid},"and uuid`)
+  await s3Client.send(
+    new PutObjectCommand({
+      Bucket: "userdata-1721739838130",
+      Key: id,
+      Body: bodyContent,
+    })
+  );
+}
 
 ////////////////////////////////////////////////////////////////////////////
 // *************===========AWS s3 bucket  object,===============****************//
