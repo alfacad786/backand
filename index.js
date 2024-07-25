@@ -2,12 +2,18 @@ import express from "express";
 const app = express();
 const router = express.Router();
 import cors from "cors";
-
+import fs from 'fs';
+import multer from 'multer';
 // Upload instead from @aws-sdk/lib-storage
 
 // import AWS from "aws-sdk";
 // import multer from "multer";
 // import multerS3 from "multer-s3";
+const upload = multer({ dest: 'uploads/' });
+
+
+// const storage = multer.memoryStorage();
+// const upload = multer({ storage });
 
 import { createInterface } from "readline/promises";
 
@@ -21,6 +27,7 @@ import {
   GetObjectCommand,
   ListBucketsCommand,
 } from "@aws-sdk/client-s3";
+
 
 const credential = {
   region: process.env.AWS_REGION,
@@ -428,10 +435,43 @@ app.get("/api/ListObject/", (req, res) => {
 
   // res.send(`Bucket name received: ${bucketName}`);
 });
-app.post("/api/newUser/", (req, res) => {
-  const { Name, Mobile, Email,UserName,Password,Image } = req.body;
-  const body = { Name, Mobile, Email,UserName,Password,Image };
-  console.log(body.projectName);
+app.post("/api/newUser/",upload.single('image'), (req, res) => {
+  // const { Name, Mobile, Email,UserName,Password,Image } = req.body;
+  // this.image = file.name;
+  const body = req.body;
+  const file = req.file;
+  console.log("*",file,"12");
+  // this.image = file.name;
 
-  aws_Uplode_User(body);
+  aws_Uplode_User(file);
+  res.send("User added successfully!");
 });
+
+
+
+// fileEvent(fileInput: any) {
+//   const AWSService = AWS;
+//   const region = '<insert your region here>';
+//   const bucketName = '<insert your bucket name>';
+//   const IdentityPoolId = '<insert your identity pool id>';
+//   const file = fileInput.target.files[0];
+// //Configures the AWS service and initial authorization
+//   AWSService.config.update({
+//     region: region,
+//     credentials: new AWSService.CognitoIdentityCredentials({
+//       IdentityPoolId: IdentityPoolId
+//     })
+//   });
+// //adds the S3 service, make sure the api version and bucket are correct
+//   const s3 = new AWSService.S3({
+//     apiVersion: '2006-03-01',
+//     params: { Bucket: bucketName}
+//   });
+// //I store this in a variable for retrieval later
+//   this.image = file.name;
+//   s3.upload({ Key: file.name, Bucket: bucketName, Body: file, ACL: 'public-read'}, function (err, data) {
+//    if (err) {
+//      console.log(err, 'there was an error uploading your file');
+//    }
+//  });
+// }

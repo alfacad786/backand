@@ -1,10 +1,11 @@
 import dotenv from "dotenv";
 dotenv.config();
+import multer from 'multer';
 // import { uuid } from "v4: uuidv4 ";
 import { v4 as uuidv4 } from "uuid";
 let uuid = uuidv4();
 import { createInterface } from "readline/promises";
-
+import fs from 'fs';
 import {
   S3Client,
   PutObjectCommand,
@@ -23,15 +24,12 @@ import {
 
 // This is used for getting user input.
 
-
-
 const credential = {
   region: process.env.AWS_REGION,
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
 };
 const s3Client = new S3Client(credential);
-
 
 ////////////////////////////////////////////////////////////////////////////
 // *************===========AWS buckate,===============****************//
@@ -49,8 +47,6 @@ export async function aws_Create_backet(name) {
   );
   console.log("is done");
 }
-
-
 
 // =============aws_Delete_bucket====================
 export async function aws_Delete_bucket() {
@@ -76,16 +72,12 @@ export async function aws_Delete_bucket() {
 // *************===========AWS buckate,===============****************//
 ////////////////////////////////////////////////////////////////////////////
 
-
-
 ////////////////////////////////////////////////////////////////////////////
 // *************===========AWS s3 bucket  object,===============****************//
 ////////////////////////////////////////////////////////////////////////////
 
-
-
 // =============aws_List_object====================
-export async function aws_list_object(req,res,bucketName)  {
+export async function aws_list_object(req, res, bucketName) {
   const command = new ListObjectsV2Command({
     Bucket: bucketName,
     // The default and maximum number of keys returned is 1000. This limits it to
@@ -115,17 +107,19 @@ export async function aws_list_object(req,res,bucketName)  {
   } catch (err) {
     console.error(err);
   }
-};
-
+}
 
 // =============aws_Read_singal_object====================
-export async function aws_Read_object(req,res) {
+export async function aws_Read_object(req, res) {
   let key = req.query.objectKey;
   let bucketName = req.query.bucketName;
-  console.log("bucketName Readobject ka :", bucketName, "or",
-    "key Readobject ka :", key,
+  console.log(
+    "bucketName Readobject ka :",
+    bucketName,
+    "or",
+    "key Readobject ka :",
+    key,
     "hai"
-    
   );
   // Read the object.
   console.log("backand bucketName :", bucketName);
@@ -139,7 +133,6 @@ export async function aws_Read_object(req,res) {
   // console.log(await Body.transformToString());
   res.send(await Body.transformToString());
 }
-
 
 // =============aws_Uplode_object====================
 export async function aws_Uplode_object(body) {
@@ -190,31 +183,49 @@ export async function aws_Delete_object() {
     }
   }
 }
+// =============aws_Uplode_User====================
+export async function aws_Uplode_User(file) {
 
-export async function aws_Uplode_User(body) {
-  const { Name, Mobile, Email,UserName,Password,Image } = body;
-  const id = `${UserName}_${uuid}`;
-  const bodyContent = JSON.stringify(body);
-  // const body = req.Body
-  // Put an object into an Amazon S3 bucket.
-  console.log("body is:", body, "good");
-  // console.log (`thisis",${projectName}_${uuid},"and uuid`)
-  await s3Client.send(
-    new PutObjectCommand({
+    const { Name, Mobile, Email, UserName, Password, Image } = file;
+    const id = `${file.originalname}_${uuid}`;
+    console.log(id);
+
+
+
+    const filePath = file.path;
+    const fileContent = fs.readFileSync(filePath);
+    const base64Image = fileContent.toString('base64');   
+
+   
+    const data = {
+      // username: UserName,
+      // password: Password,
+      // Name: Name,
+      // Mobile: Mobile,
+      // Email: Email,
+      fileContent: base64Image,
+    };
+
+    const bodyContent = JSON.stringify(data);
+
+    const uploadParams = {
       Bucket: "userdata-1721739838130",
       Key: id,
       Body: bodyContent,
-    })
-  );
-}
+      // ContentEncoding: 'base64', // Optional, but good to have
+      // ContentType: Image.mimetype // Optional, but good to have
+    };
+
+    console.log("body is:", uploadParams, "good");
+    const command = new PutObjectCommand(uploadParams);
+    const res = await s3Client.send(command);
+
+    console.log("Upload Success", res);
+  } ;
 
 ////////////////////////////////////////////////////////////////////////////
 // *************===========AWS s3 bucket  object,===============****************//
 ////////////////////////////////////////////////////////////////////////////
-
-
-
-
 
 ////////////////////////////////////////////////////////////////////////////
 // *************===========AWS S3Client,===============****************//
@@ -229,5 +240,3 @@ export async function aws_Uplode_User(body) {
 ////////////////////////////////////////////////////////////////////////////
 // *************===========AWS S3Client,===============****************//
 ////////////////////////////////////////////////////////////////////////////
-
-
