@@ -184,39 +184,34 @@ export async function aws_Delete_object() {
   }
 }
 // =============aws_Uplode_User====================
-export async function aws_Uplode_User(file) {
+export async function aws_Uplode_User(file,userMetadata) {
 
-    const { Name, Mobile, Email, UserName, Password, Image } = file;
     const id = `${file.originalname}_${uuid}`;
     console.log(id);
 
     const fileContent = file.buffer;
+    const metadata = {
+      username: userMetadata.UserName,
+      password: userMetadata.Password,
+      name: userMetadata.Name,
+      address: userMetadata.Address,
+      mobileno: userMetadata.Mobile
+  };    
 
-    // const filePath = file.path;
-    // const fileContent = fs.readFileSync(filePath);
-    // const base64Image = fileContent.toString('base64');   
-
-   
-    // const data = {
-    //   // username: UserName,
-    //   // password: Password,
-    //   // Name: Name,
-    //   // Mobile: Mobile,
-    //   // Email: Email,
-    //   fileContent: base64Image,
-    // };
-
-    // const bodyContent = JSON.stringify(data);
+ 
+    console.log("fileContent:", fileContent);
+    console.log("metadata:", metadata);
 
     const uploadParams = {
       Bucket: "userdata-1721739838130",
       Key: id,
       Body: fileContent,
-      // ContentEncoding: 'base64', // Optional, but good to have
-      ContentType: file.mimetype // Optional, but good to have
+      ContentType: file.mimetype, 
+      Metadata: metadata
     };
 
     console.log("body is:", uploadParams, "good");
+
     const command = new PutObjectCommand(uploadParams);
     const res = await s3Client.send(command);
 

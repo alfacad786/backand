@@ -2,8 +2,8 @@ import express from "express";
 const app = express();
 const router = express.Router();
 import cors from "cors";
-import fs from 'fs';
-import multer from 'multer';
+import fs from "fs";
+import multer from "multer";
 // Upload instead from @aws-sdk/lib-storage
 
 // import AWS from "aws-sdk";
@@ -12,8 +12,6 @@ import multer from 'multer';
 // const upload = multer({ dest: 'uploads/' });
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
-
-
 
 // const storage = multer.memoryStorage();
 // const upload = multer({ storage });
@@ -31,7 +29,6 @@ import {
   ListBucketsCommand,
 } from "@aws-sdk/client-s3";
 
-
 const credential = {
   region: process.env.AWS_REGION,
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -46,7 +43,7 @@ import {
   aws_Read_object,
   aws_Delete_object,
   aws_list_object,
-  aws_Uplode_User
+  aws_Uplode_User,
 } from "./aws/command.js";
 
 // import { configDotenv } from "dotenv";
@@ -438,44 +435,32 @@ app.get("/api/ListObject/", (req, res) => {
 
   // res.send(`Bucket name received: ${bucketName}`);
 });
-app.post("/api/newUser/",upload.single('image'), (req, res) => {
-  // const { Name, Mobile, Email,UserName,Password,Image } = req.body;
-  // this.image = file.name;
-  const body = req.body;
-  const file = req.file;
-  console.log("*",file,"12");
-  
-  // this.image = file.name;
 
-  aws_Uplode_User(file);
-  res.send("User added successfully!");
+// ===========newUser IN AWS S3 BUCKETS===============
+
+app.post("/api/newUser/", upload.single("image"), async (req, res) => {
+ 
+  try {
+    const body = req.body;
+    const file = req.file;
+    console.log("*", file, "12");
+    const userMetadata = {
+      UserName: req.body.username,
+      Password: req.body.password,
+      Name: req.body.name,
+      Address: req.body.address,
+      Mobile: req.body.mobileno,
+    };
+
+    if (!file) {
+      return res.status(400).send("No file uploaded");
+    }
+    await aws_Uplode_User(file, userMetadata);   
+    
+    res.status(200).send("User added successfully!");
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("File upload failed");
+  }
 });
 
-
-
-// fileEvent(fileInput: any) {
-//   const AWSService = AWS;
-//   const region = '<insert your region here>';
-//   const bucketName = '<insert your bucket name>';
-//   const IdentityPoolId = '<insert your identity pool id>';
-//   const file = fileInput.target.files[0];
-// //Configures the AWS service and initial authorization
-//   AWSService.config.update({
-//     region: region,
-//     credentials: new AWSService.CognitoIdentityCredentials({
-//       IdentityPoolId: IdentityPoolId
-//     })
-//   });
-// //adds the S3 service, make sure the api version and bucket are correct
-//   const s3 = new AWSService.S3({
-//     apiVersion: '2006-03-01',
-//     params: { Bucket: bucketName}
-//   });
-// //I store this in a variable for retrieval later
-//   this.image = file.name;
-//   s3.upload({ Key: file.name, Bucket: bucketName, Body: file, ACL: 'public-read'}, function (err, data) {
-//    if (err) {
-//      console.log(err, 'there was an error uploading your file');
-//    }
-//  });
-// }
