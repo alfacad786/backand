@@ -190,30 +190,30 @@ export async function aws_Uplode_User(file) {
     const id = `${file.originalname}_${uuid}`;
     console.log(id);
 
+    const fileContent = file.buffer;
 
-
-    const filePath = file.path;
-    const fileContent = fs.readFileSync(filePath);
-    const base64Image = fileContent.toString('base64');   
+    // const filePath = file.path;
+    // const fileContent = fs.readFileSync(filePath);
+    // const base64Image = fileContent.toString('base64');   
 
    
-    const data = {
-      // username: UserName,
-      // password: Password,
-      // Name: Name,
-      // Mobile: Mobile,
-      // Email: Email,
-      fileContent: base64Image,
-    };
+    // const data = {
+    //   // username: UserName,
+    //   // password: Password,
+    //   // Name: Name,
+    //   // Mobile: Mobile,
+    //   // Email: Email,
+    //   fileContent: base64Image,
+    // };
 
-    const bodyContent = JSON.stringify(data);
+    // const bodyContent = JSON.stringify(data);
 
     const uploadParams = {
       Bucket: "userdata-1721739838130",
       Key: id,
-      Body: bodyContent,
+      Body: fileContent,
       // ContentEncoding: 'base64', // Optional, but good to have
-      // ContentType: Image.mimetype // Optional, but good to have
+      ContentType: file.mimetype // Optional, but good to have
     };
 
     console.log("body is:", uploadParams, "good");

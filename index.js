@@ -9,7 +9,10 @@ import multer from 'multer';
 // import AWS from "aws-sdk";
 // import multer from "multer";
 // import multerS3 from "multer-s3";
-const upload = multer({ dest: 'uploads/' });
+// const upload = multer({ dest: 'uploads/' });
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+
 
 
 // const storage = multer.memoryStorage();
@@ -441,6 +444,7 @@ app.post("/api/newUser/",upload.single('image'), (req, res) => {
   const body = req.body;
   const file = req.file;
   console.log("*",file,"12");
+  
   // this.image = file.name;
 
   aws_Uplode_User(file);
