@@ -23,7 +23,7 @@ import {
 ////////////////////////////////////////////////////////////////////////////
 
 // This is used for getting user input.
-
+const Bucket= process.env.AWS_BUCKET_NAME;
 const credential = {
   region: process.env.AWS_REGION,
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -84,7 +84,7 @@ export async function aws_list_object(req, res, bucketName) {
     // one for demonstration purposes.
     MaxKeys: 100,
   });
-  console.log("ListObject  comand ka Bucket:", bucketName);
+  // console.log("ListObject  comand ka Bucket:", bucketName);
   try {
     let isTruncated = true;
     let objectKeys = [];
@@ -113,44 +113,71 @@ export async function aws_list_object(req, res, bucketName) {
 export async function aws_Read_object(req, res) {
   let key = req.query.objectKey;
   let bucketName = req.query.bucketName;
-  console.log(
-    "bucketName Readobject ka :",
-    bucketName,
-    "or",
-    "key Readobject ka :",
-    key,
-    "hai"
-  );
-  // Read the object.
-  console.log("backand bucketName :", bucketName);
-  console.log("backand key :", key);
-  const { Body } = await s3Client.send(
+  try {
+  const { Body,Metadata  } = await s3Client.send(
     new GetObjectCommand({
       Bucket: bucketName,
       Key: key,
     })
   );
-  // console.log(await Body.transformToString());
-  res.send(await Body.transformToString());
+ 
+  // Create a signed URL for the image
+  const imageUrl = `https://${bucketName}.s3.amazonaws.com/${key}`;
+
+  // Read the metadata
+  const metadata = {
+    projectName: Metadata.projectname,
+    discription: Metadata.discription,
+  };
+
+  res.json({ data: { imageUrl, ...metadata } });
+} catch (error) {
+  res.status(500).json({ error: error.message });
 }
 
-// =============aws_Uplode_object====================
-export async function aws_Uplode_object(body) {
-  const { projectName } = body;
-  const id = `${projectName}_${uuid}`;
-  const bodyContent = JSON.stringify(body);
-  // const body = req.Body
-  // Put an object into an Amazon S3 bucket.
-  console.log("body is:", body, "good");
-  // console.log (`thisis",${projectName}_${uuid},"and uuid`)
-  await s3Client.send(
-    new PutObjectCommand({
-      Bucket: "aaliya-1721126150278",
-      Key: id,
-      Body: bodyContent,
-    })
-  );
 }
+// Utility function to convert a readable stream to a string
+// const streamToString = (stream) => 
+//   new Promise((resolve, reject) => {
+//     const chunks = [];
+//     stream.on("data", (chunk) => chunks.push(chunk));
+//     stream.on("error", reject);
+//     stream.on("end", () => resolve(Buffer.concat(chunks).toString("utf8")));
+//   });
+// =============aws_Uplode_object====================
+export async function aws_Uplode_object(file, userMetadata) {
+
+
+  
+  const id = `${userMetadata.projectName}_${uuid}`;
+  console.log(id);
+
+  const fileContent = file.buffer;
+  const metadata = {
+    projectName: userMetadata.projectName,
+    discription: userMetadata.discription,    
+};    
+
+
+  console.log("fileContent:", fileContent);
+  console.log("metadata:", metadata);
+
+  const uploadParams = {
+    Bucket: Bucket,
+    Key: id,
+    Body: fileContent,
+    ContentType: file.mimetype, 
+    Metadata: metadata
+  };
+
+  console.log("body is:", uploadParams, "good");
+
+  const command = new PutObjectCommand(uploadParams);
+  const res = await s3Client.send(command);
+
+  console.log("Upload Success", res);
+} ;
+
 
 // =============aws_Delete_object====================
 
@@ -217,6 +244,41 @@ export async function aws_Uplode_User(file,userMetadata) {
 
     console.log("Upload Success", res);
   } ;
+
+  // =============aws_Uplode_Product====================
+export async function aws_Uplode_Product(file,userMetadata) {
+ const Bucket = process.env.Bucket
+  const id = `${file.originalname}_${uuid}`;
+  console.log(id);
+
+  const fileContent = file.buffer;
+  const metadata = {
+    username: userMetadata.UserName,
+    password: userMetadata.Password,
+    name: userMetadata.Name,
+    address: userMetadata.Address,
+    mobileno: userMetadata.Mobile
+};    
+
+
+  console.log("fileContent:", fileContent);
+  console.log("metadata:", metadata);
+
+  const uploadParams = {
+    Bucket: "userdata-1721739838130",
+    Key: id,
+    Body: fileContent,
+    ContentType: file.mimetype, 
+    Metadata: metadata
+  };
+
+  console.log("body is:", uploadParams, "good");
+
+  const command = new PutObjectCommand(uploadParams);
+  const res = await s3Client.send(command);
+
+  console.log("Upload Success", res);
+} ;
 
 ////////////////////////////////////////////////////////////////////////////
 // *************===========AWS s3 bucket  object,===============****************//

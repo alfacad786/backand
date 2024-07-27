@@ -360,6 +360,7 @@ app.post("/api/creatBacket/", (req, res) => {
   console.log("body:", name);
 
   aws_Create_backet(name);
+  
 });
 // ===========List BUCKET IN AWS S3===============
 app.get("/api/ListBuckets/", async (req, res) => {
@@ -393,12 +394,35 @@ app.post("/api/delateBucket/", (req, res) => {
 });
 
 // ===========UPDATE OBJECT IN AWS S3 BUCKETS===============
-app.post("/api/UPDATE/", (req, res) => {
-  const { projectName, discription, image } = req.body;
-  const body = { projectName, discription, image };
-  console.log(body.projectName);
+app.post("/api/UPDATE/",upload.single("image"), async (req, res) => {
+  // const { projectName, discription, image } = req.body;
+  // const body = { projectName, discription, image };
+  // console.log(body.projectName);
 
-  aws_Uplode_object(body);
+
+  try {
+    const body = req.body;
+    const file = req.file;
+    console.log("*", file, "12");
+    const userMetadata = {
+      projectName: req.body.projectName,
+      discription: req.body.discription,
+      
+    };
+
+    if (!file) {
+      return res.status(400).send("No file uploaded");
+    }
+    await  aws_Uplode_object(file, userMetadata); 
+     
+    
+    res.status(200).send("User added successfully!");
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("File upload failed");
+  }
+
+  
 });
 
 // ===========READ OBJECT IN AWS S3 BUCKETS===============
@@ -410,6 +434,14 @@ app.get("/api/READ/", (req, res) => {
   aws_Read_object(req, res);
   // res.send(`Bucket name received: ${bucketName}`);
 });
+app.get("/api/Image/", (req, res) => {
+  // console.log("key:", key,);
+  // Process the bucketName as needed
+
+  aws_Read_object(req, res);
+  // res.send(`Bucket name received: ${bucketName}`);
+});
+
 
 // ===========DELETE OBJECT IN AWS S3 BUCKETS===============
 app.post("/api/DELETE/", (req, res) => {
@@ -424,7 +456,7 @@ app.post("/api/DELETE/", (req, res) => {
 app.get("/api/ListObject/", (req, res) => {
   // let key = req.query.objectKey;
   let bucketName = req.query.bucketName;
-  console.log("ListObject ka bucketName:", bucketName);
+  // console.log("ListObject ka bucketName:", bucketName);
   // console.log("ListObject ki key:", key,);
   // Process the bucketName as needed
 
@@ -436,7 +468,7 @@ app.get("/api/ListObject/", (req, res) => {
   // res.send(`Bucket name received: ${bucketName}`);
 });
 
-// ===========newUser IN AWS S3 BUCKETS===============
+// =========== Add newUser IN AWS S3 BUCKETS===============
 
 app.post("/api/newUser/", upload.single("image"), async (req, res) => {
  
@@ -463,4 +495,33 @@ app.post("/api/newUser/", upload.single("image"), async (req, res) => {
     res.status(500).send("File upload failed");
   }
 });
+
+// ===========Add newProduct IN AWS S3 BUCKETS===============
+
+app.post("/api/newUser/", upload.single("image"), async (req, res) => {
+ 
+  try {
+    const body = req.body;
+    const file = req.file;
+    console.log("*", file, "12");
+    const userMetadata = {
+      UserName: req.body.username,
+      Password: req.body.password,
+      Name: req.body.name,
+      Address: req.body.address,
+      Mobile: req.body.mobileno,
+    };
+
+    if (!file) {
+      return res.status(400).send("No file uploaded");
+    }
+    await aws_Uplode_Product(file, userMetadata);   
+    
+    res.status(200).send("User added successfully!");
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("File upload failed");
+  }
+});
+
 
