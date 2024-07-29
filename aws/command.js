@@ -1,11 +1,11 @@
 import dotenv from "dotenv";
 dotenv.config();
-import multer from 'multer';
+import multer from "multer";
 // import { uuid } from "v4: uuidv4 ";
 import { v4 as uuidv4 } from "uuid";
 let uuid = uuidv4();
 import { createInterface } from "readline/promises";
-import fs from 'fs';
+import fs from "fs";
 import {
   S3Client,
   PutObjectCommand,
@@ -23,7 +23,7 @@ import {
 ////////////////////////////////////////////////////////////////////////////
 
 // This is used for getting user input.
-const Bucket= process.env.AWS_BUCKET_NAME;
+const Bucket = process.env.AWS_BUCKET_NAME;
 const credential = {
   region: process.env.AWS_REGION,
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -114,30 +114,29 @@ export async function aws_Read_object(req, res) {
   let key = req.query.objectKey;
   let bucketName = req.query.bucketName;
   try {
-  const { Body,Metadata  } = await s3Client.send(
-    new GetObjectCommand({
-      Bucket: bucketName,
-      Key: key,
-    })
-  );
- 
-  // Create a signed URL for the image
-  const imageUrl = `https://${bucketName}.s3.amazonaws.com/${key}`;
+    const { Body, Metadata } = await s3Client.send(
+      new GetObjectCommand({
+        Bucket: bucketName,
+        Key: key,
+      })
+    );
 
-  // Read the metadata
-  const metadata = {
-    projectName: Metadata.projectname,
-    discription: Metadata.discription,
-  };
+    // Create a signed URL for the image
+    const imageUrl = `https://${bucketName}.s3.amazonaws.com/${key}`;
 
-  res.json({ data: { imageUrl, ...metadata } });
-} catch (error) {
-  res.status(500).json({ error: error.message });
-}
+    // Read the metadata
+    const metadata = {
+      projectName: Metadata.projectname,
+      discription: Metadata.discription,
+    };
 
+    res.json({ data: { imageUrl, ...metadata } });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 }
 // Utility function to convert a readable stream to a string
-// const streamToString = (stream) => 
+// const streamToString = (stream) =>
 //   new Promise((resolve, reject) => {
 //     const chunks = [];
 //     stream.on("data", (chunk) => chunks.push(chunk));
@@ -146,18 +145,14 @@ export async function aws_Read_object(req, res) {
 //   });
 // =============aws_Uplode_object====================
 export async function aws_Uplode_object(file, userMetadata) {
-
-
-  
   const id = `${userMetadata.projectName}_${uuid}`;
   console.log(id);
 
   const fileContent = file.buffer;
   const metadata = {
     projectName: userMetadata.projectName,
-    discription: userMetadata.discription,    
-};    
-
+    discription: userMetadata.discription,
+  };
 
   console.log("fileContent:", fileContent);
   console.log("metadata:", metadata);
@@ -166,8 +161,8 @@ export async function aws_Uplode_object(file, userMetadata) {
     Bucket: Bucket,
     Key: id,
     Body: fileContent,
-    ContentType: file.mimetype, 
-    Metadata: metadata
+    ContentType: file.mimetype,
+    Metadata: metadata,
   };
 
   console.log("body is:", uploadParams, "good");
@@ -176,8 +171,7 @@ export async function aws_Uplode_object(file, userMetadata) {
   const res = await s3Client.send(command);
 
   console.log("Upload Success", res);
-} ;
-
+}
 
 // =============aws_Delete_object====================
 
@@ -211,43 +205,41 @@ export async function aws_Delete_object() {
   }
 }
 // =============aws_Uplode_User====================
-export async function aws_Uplode_User(file,userMetadata) {
+export async function aws_Uplode_User(file, userMetadata) {
+  const id = `${file.originalname}_${uuid}`;
+  console.log(id);
+  console.log(userMetadata);
+  const fileContent = file.buffer;
+  const metadata = {
+    FirstName: userMetadata.FirstName,
+    LastName: userMetadata.LastName,
+    Mobile: userMetadata.Mobile,
+    Email: userMetadata.Email,
+    Password: userMetadata.Password,
+  };
 
-    const id = `${file.originalname}_${uuid}`;
-    console.log(id);
+  console.log("fileContent:", fileContent);
+  console.log("metadata:", metadata);
 
-    const fileContent = file.buffer;
-    const metadata = {
-      username: userMetadata.UserName,
-      password: userMetadata.Password,
-      name: userMetadata.Name,
-      address: userMetadata.Address,
-      mobileno: userMetadata.Mobile
-  };    
+  const uploadParams = {
+    Bucket: "userdata-1721739838130",
+    Key: id,
+    Body: fileContent,
+    ContentType: file.mimetype,
+    Metadata: metadata,
+  };
 
- 
-    console.log("fileContent:", fileContent);
-    console.log("metadata:", metadata);
+  console.log("body is:", uploadParams, "good");
 
-    const uploadParams = {
-      Bucket: "userdata-1721739838130",
-      Key: id,
-      Body: fileContent,
-      ContentType: file.mimetype, 
-      Metadata: metadata
-    };
+  const command = new PutObjectCommand(uploadParams);
+  const res = await s3Client.send(command);
 
-    console.log("body is:", uploadParams, "good");
+  console.log("Upload Success", res);
+}
 
-    const command = new PutObjectCommand(uploadParams);
-    const res = await s3Client.send(command);
-
-    console.log("Upload Success", res);
-  } ;
-
-  // =============aws_Uplode_Product====================
-export async function aws_Uplode_Product(file,userMetadata) {
- const Bucket = process.env.Bucket
+// =============aws_Uplode_Product====================
+export async function aws_Uplode_Product(file, userMetadata) {
+  const Bucket = process.env.Bucket;
   const id = `${file.originalname}_${uuid}`;
   console.log(id);
 
@@ -257,9 +249,8 @@ export async function aws_Uplode_Product(file,userMetadata) {
     password: userMetadata.Password,
     name: userMetadata.Name,
     address: userMetadata.Address,
-    mobileno: userMetadata.Mobile
-};    
-
+    mobileno: userMetadata.Mobile,
+  };
 
   console.log("fileContent:", fileContent);
   console.log("metadata:", metadata);
@@ -268,8 +259,8 @@ export async function aws_Uplode_Product(file,userMetadata) {
     Bucket: "userdata-1721739838130",
     Key: id,
     Body: fileContent,
-    ContentType: file.mimetype, 
-    Metadata: metadata
+    ContentType: file.mimetype,
+    Metadata: metadata,
   };
 
   console.log("body is:", uploadParams, "good");
@@ -278,7 +269,7 @@ export async function aws_Uplode_Product(file,userMetadata) {
   const res = await s3Client.send(command);
 
   console.log("Upload Success", res);
-} ;
+}
 
 ////////////////////////////////////////////////////////////////////////////
 // *************===========AWS s3 bucket  object,===============****************//

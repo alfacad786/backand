@@ -360,7 +360,6 @@ app.post("/api/creatBacket/", (req, res) => {
   console.log("body:", name);
 
   aws_Create_backet(name);
-  
 });
 // ===========List BUCKET IN AWS S3===============
 app.get("/api/ListBuckets/", async (req, res) => {
@@ -394,11 +393,10 @@ app.post("/api/delateBucket/", (req, res) => {
 });
 
 // ===========UPDATE OBJECT IN AWS S3 BUCKETS===============
-app.post("/api/UPDATE/",upload.single("image"), async (req, res) => {
+app.post("/api/UPDATE/", upload.single("image"), async (req, res) => {
   // const { projectName, discription, image } = req.body;
   // const body = { projectName, discription, image };
   // console.log(body.projectName);
-
 
   try {
     const body = req.body;
@@ -407,22 +405,18 @@ app.post("/api/UPDATE/",upload.single("image"), async (req, res) => {
     const userMetadata = {
       projectName: req.body.projectName,
       discription: req.body.discription,
-      
     };
 
     if (!file) {
       return res.status(400).send("No file uploaded");
     }
-    await  aws_Uplode_object(file, userMetadata); 
-     
-    
+    await aws_Uplode_object(file, userMetadata);
+
     res.status(200).send("User added successfully!");
   } catch (error) {
     console.error(error);
     res.status(500).send("File upload failed");
   }
-
-  
 });
 
 // ===========READ OBJECT IN AWS S3 BUCKETS===============
@@ -441,7 +435,6 @@ app.get("/api/Image/", (req, res) => {
   aws_Read_object(req, res);
   // res.send(`Bucket name received: ${bucketName}`);
 });
-
 
 // ===========DELETE OBJECT IN AWS S3 BUCKETS===============
 app.post("/api/DELETE/", (req, res) => {
@@ -471,24 +464,24 @@ app.get("/api/ListObject/", (req, res) => {
 // =========== Add newUser IN AWS S3 BUCKETS===============
 
 app.post("/api/newUser/", upload.single("image"), async (req, res) => {
- 
   try {
     const body = req.body;
     const file = req.file;
     console.log("*", file, "12");
     const userMetadata = {
-      UserName: req.body.username,
-      Password: req.body.password,
-      Name: req.body.name,
-      Address: req.body.address,
+      FirstName: req.body.firstName,
+      LastName: req.body.lastName,
       Mobile: req.body.mobileno,
+      Email: req.body.email,
+      Password: req.body.password,
     };
+    console.log("*", userMetadata, "13");
 
     if (!file) {
       return res.status(400).send("No file uploaded");
     }
-    await aws_Uplode_User(file, userMetadata);   
-    
+    await aws_Uplode_User(file, userMetadata);
+
     res.status(200).send("User added successfully!");
   } catch (error) {
     console.error(error);
@@ -498,30 +491,28 @@ app.post("/api/newUser/", upload.single("image"), async (req, res) => {
 
 // ===========Add newProduct IN AWS S3 BUCKETS===============
 
-app.post("/api/newUser/", upload.single("image"), async (req, res) => {
- 
-  try {
-    const body = req.body;
-    const file = req.file;
-    console.log("*", file, "12");
-    const userMetadata = {
-      UserName: req.body.username,
-      Password: req.body.password,
-      Name: req.body.name,
-      Address: req.body.address,
-      Mobile: req.body.mobileno,
-    };
+// app.post("/api/newUser/", upload.single("image"), async (req, res) => {
 
-    if (!file) {
-      return res.status(400).send("No file uploaded");
-    }
-    await aws_Uplode_Product(file, userMetadata);   
-    
-    res.status(200).send("User added successfully!");
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("File upload failed");
-  }
-});
+//   try {
+//     const body = req.body;
+//     const file = req.file;
+//     console.log("*", file, "12");
+//     const userMetadata = {
+//       UserName: req.body.username,
+//       Password: req.body.password,
+//       Name: req.body.name,
+//       Address: req.body.address,
+//       Mobile: req.body.mobileno,
+//     };
 
+//     if (!file) {
+//       return res.status(400).send("No file uploaded");
+//     }
+//     await aws_Uplode_Product(file, userMetadata);
 
+//     res.status(200).send("User added successfully!");
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).send("File upload failed");
+//   }
+// });
