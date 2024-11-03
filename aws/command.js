@@ -23,9 +23,9 @@ import {
 ////////////////////////////////////////////////////////////////////////////
 
 // This is used for getting user input.
-const Bucket = process.env.AWS_BUCKET_NAME;
+const Bucket = process.env.AWS_BUCKET_NAME_MUMBAI;
 const credential = {
-  region: process.env.AWS_REGION,
+  region: process.env.AWS_REGION_MUMBAI,
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
 };
@@ -80,15 +80,12 @@ export async function aws_Delete_bucket() {
 export async function aws_list_object(req, res, bucketName) {
   const command = new ListObjectsV2Command({
     Bucket: bucketName,
-    // The default and maximum number of keys returned is 1000. This limits it to
-    // one for demonstration purposes.
+
     MaxKeys: 100,
   });
-  // console.log("ListObject  comand ka Bucket:", bucketName);
   try {
     let isTruncated = true;
     let objectKeys = [];
-
     // console.log("Your bucket contains the following objects:\n");
     let contents = "";
 
@@ -100,12 +97,36 @@ export async function aws_list_object(req, res, bucketName) {
       isTruncated = IsTruncated;
       command.input.ContinuationToken = NextContinuationToken;
       objectKeys = objectKeys.concat(Contents.map((obj) => obj.Key));
-      // console.log("ListObjects :",contents);
-      res.send(objectKeys);
     }
-    // console.log("ListObjects  key :",objectKeys);
+    // Fetch object metadata
+    let objectDetails = [];
+    for (const key of objectKeys)
+      try {
+        const metaDataCommand = new GetObjectCommand({
+          Bucket: bucketName,
+          Key: key,
+        });
+
+        const metaDataResponse = await s3Client.send(metaDataCommand);
+        const projectName =
+          metaDataResponse.Metadata.projectname || "Unknown Project";
+        const discription =
+          metaDataResponse.Metadata.discription || "No description available";
+        const imageUrl = `https://${bucketName}.s3.amazonaws.com/${key}`;
+        objectDetails.push({
+          Key: key,
+          projectName: projectName,
+          discription: discription,
+          imageUrl: imageUrl,
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    console.log("objectDetails :", objectDetails);
+    res.send(objectDetails);
   } catch (err) {
-    console.error(err);
+    console.error("Error fetching list of objects:", err);
+    res.status(500).send(err.message);
   }
 }
 
@@ -113,6 +134,7 @@ export async function aws_list_object(req, res, bucketName) {
 export async function aws_Read_object(req, res) {
   let key = req.query.objectKey;
   let bucketName = req.query.bucketName;
+  console.log("key:",key,   "&"   ,"bucketName:",bucketName  )
   try {
     const { Body, Metadata } = await s3Client.send(
       new GetObjectCommand({

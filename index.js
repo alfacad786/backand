@@ -5,11 +5,14 @@ import cors from "cors";
 import fs from "fs";
 import multer from "multer";
 // Upload instead from @aws-sdk/lib-storage
-
+import { brickWork } from "./Civil/Estimate.js";
+import { EXCAVATION } from "./Civil/Estimate.js";
+import { YELLOW_SOIL_FILING } from "./Civil/Estimate.js";
 // import AWS from "aws-sdk";
 // import multer from "multer";
 // import multerS3 from "multer-s3";
 // const upload = multer({ dest: 'uploads/' });
+app.use(express.json());
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -30,7 +33,7 @@ import {
 } from "@aws-sdk/client-s3";
 
 const credential = {
-  region: process.env.AWS_REGION,
+  region: process.env.AWS_REGION_MUMBAI,
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
 };
@@ -45,6 +48,8 @@ import {
   aws_list_object,
   aws_Uplode_User,
 } from "./aws/command.js";
+
+
 
 // import { configDotenv } from "dotenv";
 import { mongoose } from "mongoose";
@@ -480,12 +485,12 @@ app.post("/api/newUser/", upload.single("image"), async (req, res) => {
     if (!file) {
       return res.status(400).send("No file uploaded");
     }
-    await aws_Uplode_User(file, userMetadata);
+    // await aws_Uplode_User(file, userMetadata);
 
-    res.status(200).send("User added successfully!");
+    // res.status(200).send("User added successfully!");
   } catch (error) {
-    console.error(error);
-    res.status(500).send("File upload failed");
+    // console.error(error);
+    // res.status(500).send("File upload failed");
   }
 });
 
@@ -516,3 +521,44 @@ app.post("/api/newUser/", upload.single("image"), async (req, res) => {
 //     res.status(500).send("File upload failed");
 //   }
 // });
+
+
+app.post("/api/QuntityCalculator/", async (req, res) => {
+  try {  
+    brickWork(req, res);
+   
+
+    // res.json( brickWork(req,res));
+   
+    // console.log("***",data,"***");
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("File upload failed");
+  }
+});
+app.post("/api/EXCAVATION/", async (req, res) => {
+  try {  
+    EXCAVATION(req, res);
+   
+
+    // res.json( brickWork(req,res));
+   
+    // console.log("***",data,"***");
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("File upload failed");
+  }
+});
+app.post("/api/YELLOW_SOIL_FILING/", async (req, res) => {
+  try {  
+    YELLOW_SOIL_FILING(req, res);
+   
+
+    // res.json( brickWork(req,res));
+   
+    // console.log("***",data,"***");
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("File upload failed");
+  }
+});
