@@ -63,11 +63,17 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // ==================================================
+// const corsOptions = {
+//   origin: `http://localhost:5173`,
+//   mathods: "GET,POST,PUT,DELETE,PATCH,HEAD",
+//   credentials: true,
+//   optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+// };
 const corsOptions = {
   origin: `http://localhost:5173`,
-  mathods: "GET,POST,PUT,DELETE,PATCH,HEAD",
+  methods: "GET,POST,PUT,DELETE,PATCH,HEAD",
   credentials: true,
-  optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+  optionsSuccessStatus: 200,
 };
 app.use(cors(corsOptions));
 // ==================================================
@@ -193,6 +199,7 @@ router.get("/api/jokes", (req, res) => {
 });
 // =====================================================================================
 app.get("/", (req, res) => {
+  // res.send("user" ,{ user });
   res.send({ users1 });
   // res.render(Top);
 });
@@ -454,10 +461,12 @@ app.post("/api/DELETE/", (req, res) => {
 app.get("/api/ListObject/", (req, res) => {
   // let key = req.query.objectKey;
   let bucketName = req.query.bucketName;
-  // console.log("ListObject ka bucketName:", bucketName);
+  console.log("ListObject ka bucketName:", bucketName);
   // console.log("ListObject ki key:", key,);
   // Process the bucketName as needed
-
+  if (!bucketName) {
+    return res.status(400).json({ error: "Bucket name is required." });
+  }
   aws_list_object(req, res, bucketName);
 
   // const objectKeys = data.Contents.map(obj => obj.Key);
