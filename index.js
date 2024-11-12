@@ -100,9 +100,13 @@ main()
 // ==================================================
 
 // =====================================================================================
-app.listen(port || 3000, () => {
-  console.log(`Listening to the server at http://localhost:${port}`);
+app.listen(3000, '0.0.0.0', () => {
+  console.log("Listening to the server at http://0.0.0.0:3000");
 });
+
+// app.listen(port || 3000, () => {
+//   console.log(`Listening to the server at http://localhost:${port}`);
+// });
 // =====================================================================================
 router.get("/api/jokes", (req, res) => {
   const jokes = [
