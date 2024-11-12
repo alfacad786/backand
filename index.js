@@ -199,8 +199,12 @@ router.get("/api/jokes", (req, res) => {
 });
 // =====================================================================================
 app.get("/", (req, res) => {
+<<<<<<< HEAD
   // res.send("user" ,{ user });
   res.send({ users1 });
+=======
+  res.send("users1");
+>>>>>>> 11af515c6a68a062068a793b3428b0620e744a6b
   // res.render(Top);
 });
 
