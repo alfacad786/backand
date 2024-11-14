@@ -76,7 +76,7 @@ app.use(express.json());
 //   optionsSuccessStatus: 200,
 // };
 const corsOptions = {
-  origin: process.env.NODE_ENV === "production" ? `http://15.206.194.171` : `http://localhost:5173`,
+  origin: process.env.NODE_ENV === "production" ? `http://3.110.154.77:3000` : `http://localhost:5173`,
   methods: "GET,POST,PUT,DELETE,PATCH,HEAD",
   credentials: true,
   optionsSuccessStatus: 200,
