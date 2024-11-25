@@ -16,6 +16,24 @@ app.use(express.json());
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
+
+
+
+import { mongoose } from "mongoose";
+import dotenv from "dotenv";
+dotenv.config();
+const port = process.env.PORT;
+import user from "./models/user.js";
+import product from "./models/Product.js";
+import { Admin, MongoClient } from "mongodb";
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
+
+
+
+
+
 // const storage = multer.memoryStorage();
 // const upload = multer({ storage });
 
@@ -37,6 +55,7 @@ const credential = {
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
 };
+console.log(process.env.AWS_REGION_MUMBAI,process.env.AWS_ACCESS_KEY_ID,process.env.AWS_SECRET_ACCESS_KEY)
 const s3Client = new S3Client(credential);
 
 import {
@@ -52,15 +71,7 @@ import {
 
 
 // import { configDotenv } from "dotenv";
-import { mongoose } from "mongoose";
-import dotenv from "dotenv";
-dotenv.config();
-const port = process.env.PORT;
-import user from "./models/user.js";
-import product from "./models/Product.js";
-import { Admin, MongoClient } from "mongodb";
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+
 
 // ==================================================
 // const corsOptions = {
@@ -76,15 +87,30 @@ app.use(express.json());
 //   optionsSuccessStatus: 200,
 // };
 const corsOptions = {
-  origin: process.env.NODE_ENV === "production" 
-  ? `http://3.110.154.77:3000` 
-  : `http://localhost:5173`,
+  origin: process.env.NODE_ENV === "production" ? `http://3.110.154.77:3000` : `http://localhost:5173`,
   methods: "GET,POST,PUT,DELETE,PATCH,HEAD",
   credentials: true,
   optionsSuccessStatus: 200,
 };
 
-app.use(cors(corsOptions));
+
+// app.use(cors(corsOptions));
+// const cors = require('cors');
+const allowedOrigins = [
+  'http://localhost:5173', 
+  'http://3.110.154.77'
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  }
+}));
+
 // ==================================================
 
 const dburl = process.env.DB_Web1_URL;
@@ -95,7 +121,12 @@ console.log("this is :", dburl, port, "-over url");
 // ==================================================
 // 1
 // ==================================================
-const mongodbconect = mongoose.connect(dburl);
+const mongodbconect = mongoose.connect(dburl,{
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 50000,  // Increase timeout
+  socketTimeoutMS: 45000  // Increase socket timeout
+});
 
 async function main() {
   await mongodbconect;
