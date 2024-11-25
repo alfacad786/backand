@@ -76,7 +76,9 @@ app.use(express.json());
 //   optionsSuccessStatus: 200,
 // };
 const corsOptions = {
-  origin: process.env.NODE_ENV === "production" ? `http://3.110.154.77:3000` : `http://localhost:5173`,
+  origin: process.env.NODE_ENV === "production" 
+  ? `http://3.110.154.77:3000` 
+  : `http://localhost:5173`,
   methods: "GET,POST,PUT,DELETE,PATCH,HEAD",
   credentials: true,
   optionsSuccessStatus: 200,
@@ -107,8 +109,8 @@ main()
 // ==================================================
 
 // =====================================================================================
-app.listen(3000, '0.0.0.0', () => {
-  console.log("Listening to the server at http://0.0.0.0:3000");
+app.listen(3000, 'localhost', () => {
+  console.log("Server is live at http://localhost:3000");
 });
 
 // app.listen(port || 3000, () => {
