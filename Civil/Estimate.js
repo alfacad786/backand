@@ -91,7 +91,7 @@ export async function YELLOW_SOIL_FILING(req, res, ) {
    const resio=SOILFILING(req,res);
   
 
-  console.log(area,resio, "----is done----");
+  // console.log("YELLOW_SOIL_FILING",area,resio, "----is done----");
 
   res.json({area,resio});
 }
