@@ -98,7 +98,7 @@ const corsOptions = {
 // const cors = require('cors');
 const allowedOrigins = [
   'http://localhost:5173', 
-  'http://3.110.154.77:3000'
+  'http://3.110.154.77'
 ];
 
 app.use(cors({
