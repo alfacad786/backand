@@ -1,16 +1,17 @@
-export default {
-  apps: [
-    {
-      name: 'backend',
-      script: 'index.js',
-      watch: true,
-      ignore_watch: ['node_modules', 'logs'],
-      env: {
-        NODE_ENV: 'development',
+module.exports = {
+    apps: [
+      {
+        name: 'index.js',            // Application ka naam
+        script: 'index.js',         // Run hone wali file ka naam
+        watch: true,                // Watch mode enable karein
+        ignore_watch: ['node_modules', 'logs'], // Ignore folders
+        env: {
+          NODE_ENV: 'development',
+        },
+        env_production: {
+          NODE_ENV: 'production',
+        },
       },
-      env_production: {
-        NODE_ENV: 'production',
-      },
-    },
-  ],
-};
+    ],
+  };
+  
