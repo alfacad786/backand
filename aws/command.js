@@ -120,7 +120,7 @@ export async function aws_list_object(req, res, bucketName) {
           imageUrl: imageUrl,
         });
       } catch (err) {
-        console.error(err);
+        console.error("ye err aaya",err, "yewala");
       }
     console.log("objectDetails :", objectDetails);
     res.send(objectDetails);

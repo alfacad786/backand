@@ -87,29 +87,36 @@ import {
 //   optionsSuccessStatus: 200,
 // };
 const corsOptions = {
-  origin: process.env.NODE_ENV === "production" ? `http://3.110.154.77:3000` : `http://localhost:5173`,
+  origin: process.env.NODE_ENV === "production" ?
+   `http://3.110.154.77:3000` 
+   : `http://localhost:5173`,
   methods: "GET,POST,PUT,DELETE,PATCH,HEAD",
   credentials: true,
   optionsSuccessStatus: 200,
 };
 
 
-// app.use(cors(corsOptions));
+app.use(cors(corsOptions));
 // const cors = require('cors');
-const allowedOrigins = [
-  'http://localhost:5173', 
-  'http://3.110.154.77'
-];
-
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  }
-}));
+// ==================================================
+// const allowedOrigins = [
+//   'http://localhost:5173', 
+//   'http://3.110.154.77:3000'
+// ];
+// app.use(cors({
+//   origin: (origin, callback) => {
+//     console.log("Request from origin:", origin);
+//     if (!origin || allowedOrigins.includes(origin)) {
+//       callback(null, true);
+//     } else {
+//       callback(new Error('Not allowed by CORS'+ origin));
+//     }
+//   },
+//   credentials: true,
+//   methods: "GET,POST,PUT,DELETE,PATCH,HEAD",
+//   optionsSuccessStatus: 200,
+// }));
+// ================================================
 app.use((req, res, next) => {
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
   next();
