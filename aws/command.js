@@ -36,8 +36,8 @@ const credentialNorth = {
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   
 };
-console.log("aa region mumbai nu=",credential);
-console.log("aa region north nu=",credentialNorth);
+// console.log("aa region mumbai nu=",credential);
+// console.log("aa region north nu=",credentialNorth);
 
 const s3ClientNorth = new S3Client(credentialNorth);
 
