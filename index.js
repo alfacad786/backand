@@ -108,7 +108,8 @@ import {
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",
-  "http://3.110.154.77:3000"
+  "http://3.110.154.77:3000",
+  "http://3.110.154.77"
 ];
 app.use(cors({
   origin: (origin, callback) => {
