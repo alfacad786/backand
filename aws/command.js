@@ -88,13 +88,13 @@ export async function aws_Delete_bucket() {
 
 // =============aws_List_object====================
 export async function aws_list_object(req, res, bucketName) {
-  console.log("ye bucket=", bucketName);
+  // console.log("ye bucket=", bucketName);
   const command = new ListObjectsV2Command({
     Bucket: bucketName,
 
     MaxKeys: 100,
   });
-  console.log("ye list object ka client hai=", bucketName, credential);
+  // console.log("ye list object ka client hai=", bucketName, credential);
   try {
     let isTruncated = true;
     let objectKeys = [];
@@ -103,18 +103,18 @@ export async function aws_list_object(req, res, bucketName) {
 
     while (isTruncated) {
       if ((bucketName === "aaliya-1721126150278")) {
-        console.log("ye while me if ka buket name=",bucketName);
+        // console.log("ye while me if ka buket name=",bucketName);
         const { Contents, IsTruncated, NextContinuationToken } =
           await s3ClientNorth.send(command);
-           console.log("**==========",s3ClientNorth.send(command),"======command.jsx,aws_list_object,while,if====**");
+          //  console.log("**==========",s3ClientNorth.send(command),"======command.jsx,aws_list_object,while,if====**");
         const contentsList = Contents.map((c) => ` • ${c.Key}`).join("\n");
         contents += contentsList + "\n";
         isTruncated = IsTruncated;
         command.input.ContinuationToken = NextContinuationToken;
         objectKeys = objectKeys.concat(Contents.map((obj) => obj.Key));
-        console.log("ye ho gaya");
+        // console.log("ye ho gaya");
       } else {
-        console.log("ye while me else ka buket name=",bucketName);
+        // console.log("ye while me else ka buket name=",bucketName);
         const { Contents, IsTruncated, NextContinuationToken } =
           await s3Client.send(command);
         const contentsList = Contents.map((c) => ` • ${c.Key}`).join("\n");
@@ -122,7 +122,7 @@ export async function aws_list_object(req, res, bucketName) {
         isTruncated = IsTruncated;
         command.input.ContinuationToken = NextContinuationToken;
         objectKeys = objectKeys.concat(Contents.map((obj) => obj.Key));
-        console.log("abye ho gaya");
+        // console.log("abye ho gaya");
       }
       
     }
@@ -132,7 +132,7 @@ export async function aws_list_object(req, res, bucketName) {
     for (const key of objectKeys)
       try {
         if ((bucketName === "aaliya-1721126150278")) {
-          console.log("ye tey-cach me if ka buket name=",bucketName);
+          // console.log("ye tey-cach me if ka buket name=",bucketName);
           const metaDataCommand = new GetObjectCommand({
             Bucket: bucketName,
             Key: key,
@@ -153,9 +153,9 @@ export async function aws_list_object(req, res, bucketName) {
             discription: discription,
             imageUrl: imageUrl,
           });
-          console.log("ye hua");
+          // console.log("ye hua");
         } else {
-          console.log("ye tey-cach me else ka buket name=",bucketName);
+          // console.log("ye tey-cach me else ka buket name=",bucketName);
           const metaDataCommand = new GetObjectCommand({
             Bucket: bucketName,
             Key: key,
@@ -172,12 +172,12 @@ export async function aws_list_object(req, res, bucketName) {
             discription: discription,
             imageUrl: imageUrl,
           });
-          console.error("ab ye hua");
+          // console.error("ab ye hua");
         }
       } catch (err) {
         console.error("ye err aaya", err, "yewala");
       }
-    console.log("objectDetails :", objectDetails);
+    // console.log("objectDetails :", objectDetails);
     res.send(objectDetails);
   } catch (err) {
     console.error("Error fetching list of objects:", err);
