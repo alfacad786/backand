@@ -34,7 +34,6 @@ const credentialNorth = {
   region: process.env.AWS_REGION,
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  
 };
 // console.log("aa region mumbai nu=",credential);
 // console.log("aa region north nu=",credentialNorth);
@@ -100,13 +99,15 @@ export async function aws_list_object(req, res, bucketName) {
     let objectKeys = [];
     // console.log("Your bucket contains the following objects:\n");
     let contents = "";
-
+let loopCount = 0;
     while (isTruncated) {
-      if ((bucketName === "aaliya-1721126150278")) {
-        // console.log("ye while me if ka buket name=",bucketName);
+       loopCount++;
+  if (loopCount > 10) break; // safety guard
+      if (bucketName === "aaliya-1721126150278") {
+        console.log("ye while me if ka buket name=",bucketName);
         const { Contents, IsTruncated, NextContinuationToken } =
           await s3ClientNorth.send(command);
-          //  console.log("**==========",s3ClientNorth.send(command),"======command.jsx,aws_list_object,while,if====**");
+        //  console.log("**==========",s3ClientNorth.send(command),"======command.jsx,aws_list_object,while,if====**");
         const contentsList = Contents.map((c) => ` • ${c.Key}`).join("\n");
         contents += contentsList + "\n";
         isTruncated = IsTruncated;
@@ -114,9 +115,10 @@ export async function aws_list_object(req, res, bucketName) {
         objectKeys = objectKeys.concat(Contents.map((obj) => obj.Key));
         // console.log("ye ho gaya");
       } else {
-        // console.log("ye while me else ka buket name=",bucketName);
+       console.log("Sending ListObjectsV2Command...");
         const { Contents, IsTruncated, NextContinuationToken } =
           await s3Client.send(command);
+          console.log("ListObjectsV2Command received response");
         const contentsList = Contents.map((c) => ` • ${c.Key}`).join("\n");
         contents += contentsList + "\n";
         isTruncated = IsTruncated;
@@ -124,14 +126,13 @@ export async function aws_list_object(req, res, bucketName) {
         objectKeys = objectKeys.concat(Contents.map((obj) => obj.Key));
         // console.log("abye ho gaya");
       }
-      
     }
 
     // Fetch object metadata
     let objectDetails = [];
     for (const key of objectKeys)
       try {
-        if ((bucketName === "aaliya-1721126150278")) {
+        if (bucketName === "aaliya-1721126150278") {
           // console.log("ye tey-cach me if ka buket name=",bucketName);
           const metaDataCommand = new GetObjectCommand({
             Bucket: bucketName,
@@ -146,7 +147,9 @@ export async function aws_list_object(req, res, bucketName) {
           const discription =
             metaDataResponseNorth.Metadata.discription ||
             "No description available";
-          const imageUrl = `https://${bucketName}.s3.amazonaws.com/${key}`;
+            const encodedKey = encodeURIComponent(key);
+             console.log(encodedKey);
+          const imageUrl = `https://${bucketName}.s3.amazonaws.com/${encodedKey}`;
           objectDetails.push({
             Key: key,
             projectName: projectName,
@@ -165,7 +168,9 @@ export async function aws_list_object(req, res, bucketName) {
             metaDataResponse.Metadata.projectname || "Unknown Project";
           const discription =
             metaDataResponse.Metadata.discription || "No description available";
-          const imageUrl = `https://${bucketName}.s3.amazonaws.com/${key}`;
+           const encodedKey = encodeURIComponent(key);
+           console.log(encodedKey);
+          const imageUrl = `https://${bucketName}.s3.amazonaws.com/${encodedKey}`;
           objectDetails.push({
             Key: key,
             projectName: projectName,
@@ -191,23 +196,47 @@ export async function aws_Read_object(req, res) {
   let bucketName = req.query.bucketName;
   console.log("key:", key, "&", "bucketName:", bucketName);
   try {
-    const { Body, Metadata } = await s3Client.send(
-      new GetObjectCommand({
-        Bucket: bucketName,
-        Key: key,
-      })
-    );
+    if (bucketName === "aaliya-1721126150278") {
+      const { Body, Metadata } = await s3ClientNorth.send(
+        new GetObjectCommand({
+          Bucket: bucketName,
+          Key: key,
+        })
+      );
 
-    // Create a signed URL for the image
-    const imageUrl = `https://${bucketName}.s3.amazonaws.com/${key}`;
+      // Create a signed URL for the image
+      const encodedKey = encodeURIComponent(key);
+             console.log(encodedKey);
+      const imageUrl = `https://${bucketName}.s3.amazonaws.com/${key}`;
 
-    // Read the metadata
-    const metadata = {
-      projectName: Metadata.projectname,
-      discription: Metadata.discription,
-    };
+      // Read the metadata
+      const metadata = {
+        projectName: Metadata.projectname,
+        discription: Metadata.discription,
+      };
 
-    res.json({ data: { imageUrl, ...metadata } });
+      res.json({ data: { imageUrl, ...metadata } });
+    } else {
+      const { Body, Metadata } = await s3Client.send(
+        new GetObjectCommand({
+          Bucket: bucketName,
+          Key: key,
+        })
+      );
+
+      // Create a signed URL for the image
+      const encodedKey = encodeURIComponent(key);
+             console.log(encodedKey);
+      const imageUrl = `https://${bucketName}.s3.amazonaws.com/${key}`;
+
+      // Read the metadata
+      const metadata = {
+        projectName: Metadata.projectname,
+        discription: Metadata.discription,
+      };
+
+      res.json({ data: { imageUrl, ...metadata } });
+    }
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

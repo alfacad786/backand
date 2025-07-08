@@ -55,7 +55,7 @@ const credential = {
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
 };
-console.log(process.env.AWS_REGION_MUMBAI,process.env.AWS_ACCESS_KEY_ID,process.env.AWS_SECRET_ACCESS_KEY)
+// console.log(process.env.AWS_REGION_MUMBAI,process.env.AWS_ACCESS_KEY_ID,process.env.AWS_SECRET_ACCESS_KEY)
 const s3Client = new S3Client(credential);
 
 import {
@@ -110,6 +110,7 @@ const allowedOrigins = [
   "http://localhost:3000",
   "http://3.110.154.77:3000",
   "http://3.110.154.77"
+   
 ];
 app.use(cors({
   origin: (origin, callback) => {
@@ -160,7 +161,7 @@ main()
 
 // =====================================================================================
 app.listen(3000, '0.0.0.0', () => {
-  console.log("Server is live at http://'0.0.0.0':3000");
+  // console.log("Server is live at http://'0.0.0.0':3000");
 });
 
 // app.listen(port || 3000, () => {
@@ -521,7 +522,7 @@ app.post("/api/DELETE/", (req, res) => {
 });
 
 // ===========List OBJECT IN AWS S3 BUCKETS===============
-app.get("/api/ListObject/", (req, res) => {
+app.get("/api/ListObject/",async (req, res) => {
   // let key = req.query.objectKey;
   let bucketName = req.query.bucketName;
   console.log("ListObject ka bucketName:", bucketName);
