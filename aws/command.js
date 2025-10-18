@@ -264,7 +264,7 @@ export async function aws_Uplode_object(file, userMetadata) {
   console.log("metadata:", metadata);
 
   const uploadParams = {
-    Bucket: Bucket,
+    Bucket: Bucket1,
     Key: id,
     Body: fileContent,
     ContentType: file.mimetype,
@@ -275,7 +275,7 @@ export async function aws_Uplode_object(file, userMetadata) {
 
   const command = new PutObjectCommand(uploadParams);
   const res = await s3Client.send(command);
-
+  
   console.log("Upload Success", res);
 }
 
